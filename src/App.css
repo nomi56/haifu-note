@@ -46,7 +46,7 @@
 .tile-btn {
   flex: 1 1 0;
   min-width: 0;
-  aspect-ratio: 0.7;
+  height: clamp(38px, 12vw, 50px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
