@@ -56,8 +56,13 @@ export function getTileInfo(tile: Tile): TileInfo | undefined {
   return TILE_MAP.get(tile);
 }
 
+// 牌の絵文字はプラットフォームによって色付きの絵文字グリフとして描画され、
+// CSSの`color`が効かず配色がテーマ（特にダークモード）に合わないことがあるため、
+// 異体字セレクタ（VS15）を付与して常に文字色を指定できるテキスト表示に固定する
+const TEXT_PRESENTATION = '︎';
+
 export function tileEmoji(tile: Tile): string {
-  return getTileInfo(tile)?.emoji ?? '?';
+  return (getTileInfo(tile)?.emoji ?? '?') + TEXT_PRESENTATION;
 }
 
 export function tileLabel(tile: Tile): string {
@@ -66,6 +71,10 @@ export function tileLabel(tile: Tile): string {
 
 export function isRedFive(tile: Tile): boolean {
   return getTileInfo(tile)?.isRed ?? false;
+}
+
+export function tileSuit(tile: Tile): Suit | undefined {
+  return getTileInfo(tile)?.suit;
 }
 
 const TILE_PATTERN = /^(?:[1-9][mps]|0[mps]|[1-7]z)$/;

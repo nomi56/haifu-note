@@ -1,4 +1,4 @@
-import { isRedFive, tileEmoji, tileLabel } from '../tiles';
+import { isRedFive, tileEmoji, tileLabel, tileSuit } from '../tiles';
 import type { Tile } from '../types';
 
 interface TileGlyphProps {
@@ -6,9 +6,16 @@ interface TileGlyphProps {
   className?: string;
 }
 
-/** 牌の絵文字表示。赤5は文字色を赤くして強調する */
+/** 牌の絵文字表示。スート別に文字色を分け、赤5はさらに赤くして強調する */
 export function TileGlyph({ tile, className }: TileGlyphProps) {
-  const classes = ['tile-glyph', isRedFive(tile) ? 'tile-glyph--red' : '', className].filter(Boolean).join(' ');
+  const classes = [
+    'tile-glyph',
+    `tile-glyph--${tileSuit(tile) ?? 'z'}`,
+    isRedFive(tile) ? 'tile-glyph--red' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
     <span className={classes} title={tileLabel(tile)}>
       {tileEmoji(tile)}
