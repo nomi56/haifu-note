@@ -35,25 +35,24 @@
 .tile-picker {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .tile-picker__row {
   display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.tile-picker__sep {
-  width: 8px;
+  gap: 3px;
 }
 
 .tile-btn {
-  font-size: 22px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: clamp(38px, 12vw, 50px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(20px, 7vw, 30px);
   line-height: 1;
-  padding: 4px 6px;
-  min-width: 36px;
+  padding: 2px 1px;
 }
 
 .tile-btn--selected {
@@ -67,13 +66,61 @@
   justify-content: center;
 }
 
-/* 赤5(0m/0p/0s)を強調表示する。絵文字フォントによっては文字色を変更できない
-   ため、color指定に加えて枠と背景色でも判別できるようにしている */
 .tile-glyph--red {
   color: var(--danger);
-  background: rgba(209, 49, 90, 0.15);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1.5px var(--danger) inset;
+}
+
+/* Tile select field (汎用「牌を選ぶ」ボタン) */
+.tile-select-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tile-select-field__preview {
+  font-size: 28px;
+}
+
+.tile-select-field__empty {
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* Tile select modal */
+.tile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+}
+
+.tile-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: 12px 12px 0 0;
+  padding: 12px 16px 20px;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.tile-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 10px;
+}
+
+.tile-modal__close {
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px 8px;
 }
 
 /* River / turn display */

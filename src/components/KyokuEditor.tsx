@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
-import { TilePicker } from './TilePicker';
+import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
 import type { Kyoku, Tile, Turn } from '../types';
 
@@ -52,13 +52,7 @@ export function KyokuEditor({
         </button>
       </div>
       {doraPickerOpen && (
-        <TilePicker
-          value={null}
-          onSelect={(tile) => {
-            onAddDoraIndicator(tile);
-            setDoraPickerOpen(false);
-          }}
-        />
+        <TileSelectModal title="ドラ表示牌を選ぶ" onSelect={onAddDoraIndicator} onClose={() => setDoraPickerOpen(false)} />
       )}
 
       <h3>牌譜</h3>

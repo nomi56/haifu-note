@@ -28,7 +28,7 @@ npm run build
 ## GitHub Pagesへの公開（初回のみ・手動作業）
 
 1. GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を「**GitHub Actions**」に変更する。
-2. `main`ブランチにpushすると`.github/workflows/deploy.yml`が自動でビルド・デプロイする（`workflow_dispatch`での手動実行も可）。
+2. いずれかのブランチにpushすると`.github/workflows/deploy.yml`が自動でビルド・デプロイする（`workflow_dispatch`での手動実行も可）。Pagesの公開先は1つのURLのみで、直近にpushされたブランチの内容で常に上書きされる（ブランチごとに別URLにはならない）。
 3. 公開後のURLは `https://<GitHubユーザー名>.github.io/haifu-note/` になる。
 
 ## 牌譜の保存・読込

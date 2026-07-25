@@ -39,6 +39,15 @@ export const HONOR_TILES: TileInfo[] = HONOR_EMOJI.map((emoji, i) => ({
   isRed: false,
 }));
 
+/** 赤5を末尾に追加した、牌選択グリッド表示用の並び */
+function withRedFive(suitTiles: TileInfo[], red: TileInfo): TileInfo[] {
+  return [...suitTiles, red];
+}
+
+export const MAN_ROW = withRedFive(MAN_TILES, RED_FIVES[0]);
+export const PIN_ROW = withRedFive(PIN_TILES, RED_FIVES[1]);
+export const SOU_ROW = withRedFive(SOU_TILES, RED_FIVES[2]);
+
 export const ALL_TILES: TileInfo[] = [...MAN_TILES, ...PIN_TILES, ...SOU_TILES, ...RED_FIVES, ...HONOR_TILES];
 
 const TILE_MAP = new Map(ALL_TILES.map((t) => [t.tile, t]));
