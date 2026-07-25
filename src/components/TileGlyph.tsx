@@ -6,7 +6,7 @@ interface TileGlyphProps {
   className?: string;
 }
 
-/** 牌の絵文字表示。赤5は色付きの枠で強調する(絵文字フォントによっては文字色を変更できないため) */
+/** 牌の絵文字表示。赤5は文字色を赤くして強調する */
 export function TileGlyph({ tile, className }: TileGlyphProps) {
   const classes = ['tile-glyph', isRedFive(tile) ? 'tile-glyph--red' : '', className].filter(Boolean).join(' ');
   return (

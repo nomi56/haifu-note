@@ -39,10 +39,9 @@ export const HONOR_TILES: TileInfo[] = HONOR_EMOJI.map((emoji, i) => ({
   isRed: false,
 }));
 
-/** 通常の5の直後に赤5を差し込んだ、牌選択グリッド表示用の並び */
+/** 赤5を末尾に追加した、牌選択グリッド表示用の並び */
 function withRedFive(suitTiles: TileInfo[], red: TileInfo): TileInfo[] {
-  const fiveIndex = suitTiles.findIndex((t) => t.tile === `5${red.suit}`);
-  return [...suitTiles.slice(0, fiveIndex + 1), red, ...suitTiles.slice(fiveIndex + 1)];
+  return [...suitTiles, red];
 }
 
 export const MAN_ROW = withRedFive(MAN_TILES, RED_FIVES[0]);
