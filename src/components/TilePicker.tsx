@@ -1,4 +1,5 @@
-import { HONOR_TILES, MAN_TILES, PIN_TILES, RED_FIVES, SOU_TILES, tileEmoji, tileLabel } from '../tiles';
+import { TileGlyph } from './TileGlyph';
+import { HONOR_TILES, MAN_TILES, PIN_TILES, RED_FIVES, SOU_TILES } from '../tiles';
 import type { Tile } from '../types';
 
 interface TilePickerProps {
@@ -11,10 +12,9 @@ function TileButton({ tile, selected, onSelect }: { tile: Tile; selected: boolea
     <button
       type="button"
       className={`tile-btn${selected ? ' tile-btn--selected' : ''}`}
-      title={tileLabel(tile)}
       onClick={() => onSelect(tile)}
     >
-      {tileEmoji(tile)}
+      <TileGlyph tile={tile} />
     </button>
   );
 }

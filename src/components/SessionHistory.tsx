@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { RiverView } from './RiverView';
-import { tileEmoji } from '../tiles';
+import { TileGlyph } from './TileGlyph';
 import type { Kyoku } from '../types';
 
 interface SessionHistoryProps {
@@ -16,7 +16,7 @@ function HistoryItem({ kyoku }: { kyoku: Kyoku }) {
         <span className="history-item__name">{kyoku.name || '(無題の局)'}</span>
         <span className="history-item__dora">
           {kyoku.doraIndicators.map((t, i) => (
-            <span key={i}>{tileEmoji(t)}</span>
+            <TileGlyph key={i} tile={t} />
           ))}
         </span>
         <span className="history-item__count">{kyoku.turns.length}手</span>

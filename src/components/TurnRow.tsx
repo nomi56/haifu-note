@@ -1,4 +1,5 @@
-import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, isTsumogiri, tileEmoji, tileLabel } from '../tiles';
+import { TileGlyph } from './TileGlyph';
+import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, isTsumogiri } from '../tiles';
 import type { Turn } from '../types';
 
 interface TurnRowProps {
@@ -16,19 +17,14 @@ export function TurnRow({ turn, index }: TurnRowProps) {
         <span className="turn-row__call" title={`${CALL_TYPE_LABEL[turn.call.type]} ${CALL_SOURCE_LABEL_MAP[turn.call.from]}から`}>
           {CALL_TYPE_LABEL[turn.call.type]}
           <span className="turn-row__call-source">{CALL_SOURCE_LABEL_MAP[turn.call.from]}</span>
-          <span className="tile-emoji">{tileEmoji(turn.call.tiles[0])}</span>
+          <TileGlyph tile={turn.call.tiles[0]} className="tile-emoji" />
         </span>
       ) : (
-        <span className="turn-row__draw" title={tileLabel(turn.draw ?? '')}>
-          <span className="tile-emoji">{turn.draw ? tileEmoji(turn.draw) : '?'}</span>
-        </span>
+        <span className="turn-row__draw">{turn.draw ? <TileGlyph tile={turn.draw} className="tile-emoji" /> : '?'}</span>
       )}
       <span className="turn-row__arrow">→</span>
-      <span
-        className={`turn-row__discard${turn.riichi ? ' turn-row__discard--riichi' : ''}`}
-        title={tileLabel(turn.discard)}
-      >
-        <span className="tile-emoji">{tileEmoji(turn.discard)}</span>
+      <span className={`turn-row__discard${turn.riichi ? ' turn-row__discard--riichi' : ''}`}>
+        <TileGlyph tile={turn.discard} className="tile-emoji" />
       </span>
       <span className={`turn-row__label${tsumogiri ? ' turn-row__label--tsumogiri' : ''}`}>
         {tsumogiri ? 'ツモ切り' : '手出し'}
