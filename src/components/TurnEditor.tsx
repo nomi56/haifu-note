@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TilePicker } from './TilePicker';
+import { TileSelectField } from './TileSelectField';
 import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL } from '../tiles';
 import type { Call, CallSource, CallType, Tile, Turn } from '../types';
 
@@ -56,7 +56,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       {mode === 'draw' ? (
         <div className="turn-editor__section">
           <h4>ツモった牌</h4>
-          <TilePicker value={drawTile} onSelect={setDrawTile} />
+          <TileSelectField value={drawTile} onChange={setDrawTile} title="ツモった牌を選ぶ" />
         </div>
       ) : (
         <div className="turn-editor__section">
@@ -77,13 +77,13 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
               ))}
             </select>
           </div>
-          <TilePicker value={callTile} onSelect={setCallTile} />
+          <TileSelectField value={callTile} onChange={setCallTile} title="鳴いた牌を選ぶ" />
         </div>
       )}
 
       <div className="turn-editor__section">
         <h4>打牌</h4>
-        <TilePicker value={discardTile} onSelect={setDiscardTile} />
+        <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
       </div>
 
       <div className="turn-editor__footer">
