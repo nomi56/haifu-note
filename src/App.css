@@ -64,6 +64,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-h);
+}
+
+.tile-glyph--p {
+  color: var(--tile-pin);
+}
+
+.tile-glyph--s {
+  color: var(--tile-sou);
 }
 
 .tile-glyph--red {
