@@ -5,15 +5,17 @@ import type { KifuSession } from '../types';
 interface FilePanelProps {
   session: KifuSession;
   onSessionReplace: (session: KifuSession) => void;
+  onDownloaded: () => void;
 }
 
-export function FilePanel({ session, onSessionReplace }: FilePanelProps) {
+export function FilePanel({ session, onSessionReplace, onDownloaded }: FilePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleDownload() {
     downloadSession(session);
+    onDownloaded();
     setError(null);
     setNotice('ダウンロードしました');
   }

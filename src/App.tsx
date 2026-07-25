@@ -31,10 +31,22 @@ function createEmptySession(): KifuSession {
 
 type View = 'record' | 'file';
 
+function snapshotOf(session: KifuSession, inProgress: Kyoku): string {
+  return JSON.stringify([session, inProgress]);
+}
+
 function App() {
-  const [session, setSession] = useState<KifuSession>(() => storage.loadSession() ?? createEmptySession());
-  const [inProgress, setInProgress] = useState<Kyoku>(() => storage.loadInProgressKyoku() ?? createEmptyKyoku());
+  const [initial] = useState(() => ({
+    session: storage.loadSession() ?? createEmptySession(),
+    inProgress: storage.loadInProgressKyoku() ?? createEmptyKyoku(),
+  }));
+  const [session, setSession] = useState<KifuSession>(initial.session);
+  const [inProgress, setInProgress] = useState<Kyoku>(initial.inProgress);
   const [view, setView] = useState<View>('record');
+  // ダウンロード/読込/新規作成した時点のスナップショット。現在の内容とズレていれば
+  // 「ファイルに書き出していない変更がある」とみなし、離脱時に警告を出す
+  const [savedSnapshot, setSavedSnapshot] = useState(() => snapshotOf(initial.session, initial.inProgress));
+  const hasUnsavedChanges = snapshotOf(session, inProgress) !== savedSnapshot;
 
   // localStorageへの書き込みは軽量なので即時保存する(デバウンスすると
   // 保存前にタブが閉じられ/リロードされた場合にデータを失う)
@@ -45,6 +57,16 @@ function App() {
   useEffect(() => {
     storage.saveInProgressKyoku(inProgress);
   }, [inProgress]);
+
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (!hasUnsavedChanges) return;
+      e.preventDefault();
+      e.returnValue = '';
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   function addTurn(turn: Turn) {
     setInProgress((prev) => ({ ...prev, turns: [...prev.turns, turn] }));
@@ -73,8 +95,10 @@ function App() {
     if (session.kyokus.length > 0 || inProgress.turns.length > 0) {
       if (!window.confirm(confirmMessage)) return;
     }
+    const freshKyoku = createEmptyKyoku();
     setSession(newSession);
-    setInProgress(createEmptyKyoku());
+    setInProgress(freshKyoku);
+    setSavedSnapshot(snapshotOf(newSession, freshKyoku));
   }
 
   function handleNewSession() {
@@ -83,6 +107,10 @@ function App() {
 
   function handleSessionReplace(loaded: KifuSession) {
     replaceSession(loaded, '現在のセッションを破棄してファイルから読み込みますか？');
+  }
+
+  function handleDownloaded() {
+    setSavedSnapshot(snapshotOf(session, inProgress));
   }
 
   return (
@@ -129,7 +157,7 @@ function App() {
         </main>
       ) : (
         <main className="app__main">
-          <FilePanel session={session} onSessionReplace={handleSessionReplace} />
+          <FilePanel session={session} onSessionReplace={handleSessionReplace} onDownloaded={handleDownloaded} />
         </main>
       )}
     </div>
