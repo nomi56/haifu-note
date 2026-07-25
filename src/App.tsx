@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DrivePanel } from './components/DrivePanel';
+import { FilePanel } from './components/FilePanel';
 import { KyokuEditor } from './components/KyokuEditor';
 import { SessionHistory } from './components/SessionHistory';
 import * as storage from './storage';
@@ -29,7 +29,7 @@ function createEmptySession(): KifuSession {
   };
 }
 
-type View = 'record' | 'drive';
+type View = 'record' | 'file';
 
 function App() {
   const [session, setSession] = useState<KifuSession>(() => storage.loadSession() ?? createEmptySession());
@@ -69,12 +69,20 @@ function App() {
     setInProgress(createEmptyKyoku());
   }
 
-  function handleNewSession() {
+  function replaceSession(newSession: KifuSession, confirmMessage: string) {
     if (session.kyokus.length > 0 || inProgress.turns.length > 0) {
-      if (!window.confirm('現在のセッションを破棄して新しい牌譜帳を開始しますか？')) return;
+      if (!window.confirm(confirmMessage)) return;
     }
-    setSession(createEmptySession());
+    setSession(newSession);
     setInProgress(createEmptyKyoku());
+  }
+
+  function handleNewSession() {
+    replaceSession(createEmptySession(), '現在のセッションを破棄して新しい牌譜帳を開始しますか？');
+  }
+
+  function handleSessionReplace(loaded: KifuSession) {
+    replaceSession(loaded, '現在のセッションを破棄してファイルから読み込みますか？');
   }
 
   return (
@@ -85,8 +93,8 @@ function App() {
           <button type="button" className={view === 'record' ? 'active' : ''} onClick={() => setView('record')}>
             記録
           </button>
-          <button type="button" className={view === 'drive' ? 'active' : ''} onClick={() => setView('drive')}>
-            Drive設定
+          <button type="button" className={view === 'file' ? 'active' : ''} onClick={() => setView('file')}>
+            保存・読込
           </button>
         </nav>
       </header>
@@ -121,7 +129,7 @@ function App() {
         </main>
       ) : (
         <main className="app__main">
-          <DrivePanel session={session} onSessionUpdate={setSession} />
+          <FilePanel session={session} onSessionReplace={handleSessionReplace} />
         </main>
       )}
     </div>

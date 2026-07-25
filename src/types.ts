@@ -42,6 +42,4 @@ export interface KifuSession {
   createdAt: string;
   updatedAt: string;
   kyokus: Kyoku[];
-  /** Google Driveに保存済みの場合のファイルID */
-  driveFileId?: string;
 }
