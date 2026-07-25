@@ -35,23 +35,36 @@
 .tile-picker {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .tile-picker__row {
   display: flex;
-  gap: 2px;
+  gap: 4px;
+}
+
+/* 萬子/筒子/索子の10牌の行は1行に詰め込むとボタンが小さくなりすぎるため、
+   5個ずつ2行に折り返して1つあたりのタップ領域を確保する */
+.tile-picker__row--wide {
   flex-wrap: wrap;
-  align-items: center;
+  row-gap: 4px;
 }
 
 .tile-btn {
+  flex: 1 1 0;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: clamp(24px, 8vw, 36px);
   line-height: 1;
-  padding: 3px 1px;
+  padding: 8px 0;
+}
+
+.tile-picker__row--wide .tile-btn {
+  flex: 0 0 calc(20% - 3.2px);
+  font-size: clamp(28px, 9vw, 42px);
+  padding: 10px 0;
 }
 
 .tile-btn--selected {
