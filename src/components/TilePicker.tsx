@@ -22,17 +22,17 @@ function TileButton({ tile, selected, onSelect }: { tile: Tile; selected: boolea
 export function TilePicker({ value, onSelect }: TilePickerProps) {
   return (
     <div className="tile-picker">
-      <div className="tile-picker__row tile-picker__row--wide">
+      <div className="tile-picker__row">
         {MAN_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
-      <div className="tile-picker__row tile-picker__row--wide">
+      <div className="tile-picker__row">
         {PIN_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
-      <div className="tile-picker__row tile-picker__row--wide">
+      <div className="tile-picker__row">
         {SOU_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}

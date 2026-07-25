@@ -40,33 +40,19 @@
 
 .tile-picker__row {
   display: flex;
-  gap: 4px;
-}
-
-/* 萬子/筒子/索子の10牌の行は、2段に折り返すと1〜9の並びが視覚的に分断されて
-   選びにくくなるため、1行のまま固定サイズで表示し、画面幅に収まらない分は
-   横スクロールできるようにする */
-.tile-picker__row--wide {
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  gap: 3px;
 }
 
 .tile-btn {
   flex: 1 1 0;
   min-width: 0;
+  aspect-ratio: 0.7;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(24px, 8vw, 36px);
+  font-size: clamp(20px, 7vw, 30px);
   line-height: 1;
-  padding: 8px 0;
-}
-
-.tile-picker__row--wide .tile-btn {
-  flex: 0 0 56px;
-  width: 56px;
-  height: 56px;
-  font-size: 30px;
+  padding: 2px 1px;
 }
 
 .tile-btn--selected {
