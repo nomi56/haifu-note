@@ -1,5 +1,5 @@
 import { TileGlyph } from './TileGlyph';
-import { HONOR_TILES, MAN_TILES, PIN_TILES, RED_FIVES, SOU_TILES } from '../tiles';
+import { HONOR_TILES, MAN_ROW, PIN_ROW, SOU_ROW } from '../tiles';
 import type { Tile } from '../types';
 
 interface TilePickerProps {
@@ -23,26 +23,22 @@ export function TilePicker({ value, onSelect }: TilePickerProps) {
   return (
     <div className="tile-picker">
       <div className="tile-picker__row">
-        {MAN_TILES.map((t) => (
+        {MAN_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
       <div className="tile-picker__row">
-        {PIN_TILES.map((t) => (
+        {PIN_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
       <div className="tile-picker__row">
-        {SOU_TILES.map((t) => (
+        {SOU_ROW.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
       <div className="tile-picker__row">
         {HONOR_TILES.map((t) => (
-          <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
-        ))}
-        <span className="tile-picker__sep" />
-        {RED_FIVES.map((t) => (
           <TileButton key={t.tile} tile={t.tile} selected={value === t.tile} onSelect={onSelect} />
         ))}
       </div>
