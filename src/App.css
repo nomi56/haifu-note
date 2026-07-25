@@ -61,6 +61,21 @@
   border-color: var(--accent);
 }
 
+.tile-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 赤5(0m/0p/0s)を強調表示する。絵文字フォントによっては文字色を変更できない
+   ため、color指定に加えて枠と背景色でも判別できるようにしている */
+.tile-glyph--red {
+  color: var(--danger);
+  background: rgba(209, 49, 90, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1.5px var(--danger) inset;
+}
+
 /* River / turn display */
 .river-view {
   display: flex;

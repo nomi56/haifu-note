@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { RiverView } from './RiverView';
+import { TileGlyph } from './TileGlyph';
 import { TilePicker } from './TilePicker';
 import { TurnEditor } from './TurnEditor';
-import { tileEmoji } from '../tiles';
 import type { Kyoku, Tile, Turn } from '../types';
 
 interface KyokuEditorProps {
@@ -44,7 +44,7 @@ export function KyokuEditor({
         <span className="kyoku-editor__dora-label">ドラ表示牌</span>
         {kyoku.doraIndicators.map((tile, i) => (
           <button key={`${tile}-${i}`} type="button" className="dora-chip" onClick={() => onRemoveDoraIndicator(i)}>
-            {tileEmoji(tile)} ×
+            <TileGlyph tile={tile} /> ×
           </button>
         ))}
         <button type="button" className="dora-add" onClick={() => setDoraPickerOpen((v) => !v)}>
