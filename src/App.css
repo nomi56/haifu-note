@@ -35,25 +35,24 @@
 .tile-picker {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .tile-picker__row {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .tile-picker__sep {
-  width: 8px;
+  width: 4px;
 }
 
 .tile-btn {
   font-size: 22px;
   line-height: 1;
-  padding: 4px 6px;
-  min-width: 36px;
+  padding: 1px 2px;
 }
 
 .tile-btn--selected {
