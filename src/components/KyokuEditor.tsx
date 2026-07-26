@@ -66,7 +66,7 @@ export function KyokuEditor({
         <input
           className="kyoku-editor__name"
           type="text"
-          placeholder="局名（例: 東1局0本場）"
+          placeholder="局名"
           value={kyoku.name}
           onChange={(e) => onChangeName(e.target.value)}
         />
