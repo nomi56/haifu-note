@@ -279,6 +279,15 @@
   margin-right: 4px;
 }
 
+.turn-row__agari-badge {
+  font-size: 11px;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 4px;
+}
+
 .turn-row__discard--riichi .tile-emoji {
   display: inline-block;
   transform: rotate(90deg);
@@ -330,8 +339,13 @@
 
 .turn-editor__call-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 6px;
+}
+
+.turn-editor__call-controls button {
+  white-space: nowrap;
 }
 
 .turn-editor__chi-candidates {

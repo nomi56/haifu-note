@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
-import { CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
-import type { Call, CallSource, Tile, Turn } from '../types';
+import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
+import type { AgariSource, Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
   onAdd: (turn: Turn) => void;
 }
 
-type Mode = 'tsumo' | 'chi' | 'pon' | 'kan' | 'ankan';
+type Mode = 'tsumo' | 'chi' | 'pon' | 'kan' | 'ankan' | 'agari';
 
 const MODE_LABEL: Record<Mode, string> = {
   tsumo: '自摸',
@@ -16,9 +16,12 @@ const MODE_LABEL: Record<Mode, string> = {
   pon: 'ポン',
   kan: 'カン',
   ankan: '暗カン',
+  agari: '上り',
 };
 
-const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan'];
+const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan', 'agari'];
+
+const AGARI_SOURCE_OPTIONS: AgariSource[] = ['tsumo', 'kamicha', 'toimen', 'shimocha'];
 
 // どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし。
 // カンは、他家の捨て牌からの通常のカン(上家/対面/下家)に加え、
@@ -37,13 +40,15 @@ const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   kan: 'カンした牌',
 };
 
-// カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない
+// カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない。
+// 上りは局の最後の手であり、この後に打牌は発生しない
 const NEEDS_DISCARD: Record<Mode, boolean> = {
   tsumo: true,
   chi: true,
   pon: true,
   kan: false,
   ankan: false,
+  agari: false,
 };
 
 // チー/ポンで喰い替えると門前が崩れるため、鳴いた直後の打牌ではリーチ宣言できない
@@ -53,6 +58,7 @@ const ALLOWS_RIICHI: Record<Mode, boolean> = {
   pon: false,
   kan: false,
   ankan: false,
+  agari: false,
 };
 
 export function TurnEditor({ onAdd }: TurnEditorProps) {
@@ -65,18 +71,22 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [karagiri, setKaragiri] = useState(false);
   // チーの形(123/234/345等)。昇順3枚の並びで保持し、鳴いた牌はcallTileと同じ値で含まれる
   const [chiMeld, setChiMeld] = useState<Tile[] | null>(null);
+  const [agariTile, setAgariTile] = useState<Tile | null>(null);
+  const [agariSource, setAgariSource] = useState<AgariSource>('tsumo');
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
   // 暗カンはツモった牌とカンする牌が一致するとは限らない(手牌に揃っていた組を
   // 後から暗カンする場合など)ため、両方を別々に入力する
   const requiresDraw = mode === 'tsumo' || mode === 'ankan';
-  const requiresCallTile = mode !== 'tsumo';
+  const requiresCallTile = mode !== 'tsumo' && mode !== 'agari';
   const requiresChiMeld = mode === 'chi';
+  const requiresAgariTile = mode === 'agari';
   const canAdd =
     (!requiresDraw || drawTile !== null) &&
     (!requiresCallTile || callTile !== null) &&
     (!requiresChiMeld || chiMeld !== null) &&
+    (!requiresAgariTile || agariTile !== null) &&
     (!needsDiscard || discardTile !== null);
 
   function reset() {
@@ -86,6 +96,8 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     setRiichi(false);
     setKaragiri(false);
     setChiMeld(null);
+    setAgariTile(null);
+    setAgariSource('tsumo');
   }
 
   function changeMode(next: Mode) {
@@ -101,7 +113,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   }
 
   function buildCall(): Call | undefined {
-    if (mode === 'tsumo' || !callTile) return undefined;
+    if (mode === 'tsumo' || mode === 'agari' || !callTile) return undefined;
     if (mode === 'chi') {
       if (!chiMeld) return undefined;
       const others = chiMeld.filter((t) => t !== callTile);
@@ -129,6 +141,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
       riichi: allowsRiichi && riichi,
       karagiri: karagiriEnabled && karagiri,
+      agari: requiresAgariTile && agariTile ? { tile: agariTile, source: agariSource } : undefined,
     };
     onAdd(turn);
     reset();
@@ -153,6 +166,30 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
           <h4>ツモった牌</h4>
           <TileSelectField value={drawTile} onChange={setDrawTile} title="ツモった牌を選ぶ" />
         </div>
+      )}
+
+      {mode === 'agari' && (
+        <>
+          <div className="turn-editor__section">
+            <h4>上り牌</h4>
+            <TileSelectField value={agariTile} onChange={setAgariTile} title="上り牌を選ぶ" />
+          </div>
+          <div className="turn-editor__section">
+            <h4>上り方</h4>
+            <div className="turn-editor__call-controls">
+              {AGARI_SOURCE_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={agariSource === s ? 'active' : ''}
+                  onClick={() => setAgariSource(s)}
+                >
+                  {AGARI_SOURCE_LABEL_MAP[s]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {mode === 'ankan' && (
@@ -252,7 +289,9 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
         </>
       ) : (
         <div className="turn-editor__footer turn-editor__footer--no-riichi">
-          <p className="turn-editor__hint">続けてリンシャンツモを記録してください</p>
+          <p className="turn-editor__hint">
+            {mode === 'agari' ? 'この局はこの手で終了します' : '続けてリンシャンツモを記録してください'}
+          </p>
           <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
             1手追加
           </button>

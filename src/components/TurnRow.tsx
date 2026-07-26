@@ -1,6 +1,6 @@
 import { TileGlyph } from './TileGlyph';
 import { TileMeld } from './TileMeld';
-import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, callDisplayTiles, isTsumogiri } from '../tiles';
+import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, callDisplayTiles, isTsumogiri } from '../tiles';
 import type { Turn } from '../types';
 
 interface TurnRowProps {
@@ -24,6 +24,12 @@ export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
           {turn.call.from && <span className="turn-row__call-source">{CALL_SOURCE_LABEL_MAP[turn.call.from]}</span>}
           <TileMeld tiles={callDisplayTiles(turn.call)} />
         </span>
+      ) : turn.agari ? (
+        <span className="turn-row__draw">
+          {rinshan && <span className="turn-row__rinshan-badge">リンシャン</span>}
+          <span className="turn-row__agari-badge">上り</span>
+          <TileGlyph tile={turn.agari.tile} className="tile-emoji" />
+        </span>
       ) : (
         <span className="turn-row__draw">
           {rinshan && <span className="turn-row__rinshan-badge">リンシャン</span>}
@@ -41,6 +47,8 @@ export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
           </span>
           {turn.riichi && <span className="turn-row__riichi-badge">リーチ</span>}
         </>
+      ) : turn.agari ? (
+        <span className="turn-row__label">{AGARI_SOURCE_LABEL_MAP[turn.agari.source]}</span>
       ) : (
         <span className="turn-row__label">リンシャンツモへ続く</span>
       )}

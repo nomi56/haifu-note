@@ -12,6 +12,15 @@ export type CallType = 'chi' | 'pon' | 'kan' | 'ankan' | 'kakan';
 // 鳴いた牌がどの相手から出たか
 export type CallSource = 'kamicha' | 'toimen' | 'shimocha';
 
+// 上り(和了)の取り方。ツモは自摸、それ以外はロンした相手
+export type AgariSource = 'tsumo' | CallSource;
+
+export interface Agari {
+  /** 上り牌(ツモならツモった牌、ロンなら和了した相手の捨て牌) */
+  tile: Tile;
+  source: AgariSource;
+}
+
 export interface Call {
   type: CallType;
   /** 暗カン/加カンは相手からの牌ではないため未設定 */
@@ -36,6 +45,8 @@ export interface Turn {
    * draw === discard の場合のみ意味を持つ
    */
   karagiri: boolean;
+  /** 上り(和了)の場合の情報。上り牌と取り方(ツモ/ロン)を持ち、この手には打牌が続かない */
+  agari?: Agari;
 }
 
 export interface Kyoku {
