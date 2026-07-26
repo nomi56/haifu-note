@@ -2,14 +2,20 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { FilePanel } from './components/FilePanel';
 import { KyokuEditor } from './components/KyokuEditor';
 import { SessionHistory } from './components/SessionHistory';
+import { UnsavedChangesDialog } from './components/UnsavedChangesDialog';
 import * as storage from './storage';
 import type { Kyoku, KifuSession, Tile, TileSize, Turn } from './types';
 import './App.css';
+
+// 局データの読み替え(既存局の読込/新規局への切り替え)先。編集中の内容があれば
+// ダイアログで確認してから適用する
+type PendingSwitch = { type: 'kyoku'; kyoku: Kyoku } | { type: 'new' };
 
 const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', large: '38px' };
 
 function createEmptyKyoku(): Kyoku {
   return {
+    id: crypto.randomUUID(),
     name: '',
     haipai: [],
     doraIndicators: [],
@@ -19,9 +25,9 @@ function createEmptyKyoku(): Kyoku {
   };
 }
 
-// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはhaipaiが無いため補う
+// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはid/haipaiが無いため補う
 function normalizeKyoku(kyoku: Kyoku): Kyoku {
-  return { ...kyoku, haipai: kyoku.haipai ?? [] };
+  return { ...kyoku, id: kyoku.id ?? crypto.randomUUID(), haipai: kyoku.haipai ?? [] };
 }
 
 function createEmptySession(): KifuSession {
@@ -53,10 +59,15 @@ function App() {
   const [inProgress, setInProgress] = useState<Kyoku>(initial.inProgress);
   const [view, setView] = useState<View>('record');
   const [tileSize, setTileSize] = useState<TileSize>(() => storage.loadTileSize());
+  const [pendingSwitch, setPendingSwitch] = useState<PendingSwitch | null>(null);
   // ダウンロード/読込/新規作成した時点のスナップショット。現在の内容とズレていれば
   // 「ファイルに書き出していない変更がある」とみなし、離脱時に警告を出す
   const [savedSnapshot, setSavedSnapshot] = useState(() => snapshotOf(initial.session, initial.inProgress));
   const hasUnsavedChanges = snapshotOf(session, inProgress) !== savedSnapshot;
+  // 局を読み込んだ/新規作成した時点のスナップショット。ここからinProgressが変わっていなければ
+  // (読み込んだだけで未編集なら)局の切り替え時に確認ダイアログを出す必要はない
+  const [loadedKyokuSnapshot, setLoadedKyokuSnapshot] = useState(() => JSON.stringify(initial.inProgress));
+  const hasKyokuEdits = JSON.stringify(inProgress) !== loadedKyokuSnapshot;
 
   // localStorageへの書き込みは軽量なので即時保存する(デバウンスすると
   // 保存前にタブが閉じられ/リロードされた場合にデータを失う)
@@ -106,11 +117,71 @@ function App() {
     setInProgress((prev) => ({ ...prev, doraIndicators: prev.doraIndicators.filter((_, i) => i !== index) }));
   }
 
+  // 現在編集中の局をsession.kyokusへ反映する(既存IDなら上書き、無ければ追加)
+  function saveInProgressToSession() {
+    if (inProgress.turns.length === 0) return;
+    setSession((prev) => {
+      const existingIndex = prev.kyokus.findIndex((k) => k.id === inProgress.id);
+      if (existingIndex === -1) {
+        const confirmed: Kyoku = { ...inProgress, confirmedAt: new Date().toISOString() };
+        return { ...prev, kyokus: [...prev.kyokus, confirmed], updatedAt: new Date().toISOString() };
+      }
+      // 既存の局を編集した場合は確定日時・履歴内の位置を保ったまま内容だけ上書きする
+      const updated: Kyoku = { ...inProgress, confirmedAt: prev.kyokus[existingIndex].confirmedAt };
+      const kyokus = [...prev.kyokus];
+      kyokus[existingIndex] = updated;
+      return { ...prev, kyokus, updatedAt: new Date().toISOString() };
+    });
+  }
+
   function confirmKyoku() {
     if (inProgress.turns.length === 0) return;
-    const confirmed: Kyoku = { ...inProgress, confirmedAt: new Date().toISOString() };
-    setSession((prev) => ({ ...prev, kyokus: [...prev.kyokus, confirmed], updatedAt: new Date().toISOString() }));
-    setInProgress(createEmptyKyoku());
+    saveInProgressToSession();
+    const fresh = createEmptyKyoku();
+    setInProgress(fresh);
+    setLoadedKyokuSnapshot(JSON.stringify(fresh));
+  }
+
+  function applySwitch(action: PendingSwitch) {
+    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku();
+    setInProgress(next);
+    setLoadedKyokuSnapshot(JSON.stringify(next));
+  }
+
+  // 編集中の局データを読み替える(既存局の読込/新規局への切り替え)。
+  // 読み込み時点から実際に編集されている場合のみ、破棄せず先にダイアログで確認する
+  function requestSwitch(action: PendingSwitch) {
+    if (hasKyokuEdits) {
+      setPendingSwitch(action);
+      return;
+    }
+    applySwitch(action);
+  }
+
+  function loadKyokuForEdit(kyoku: Kyoku) {
+    if (kyoku.id === inProgress.id) return;
+    requestSwitch({ type: 'kyoku', kyoku });
+  }
+
+  function startNewKyoku() {
+    requestSwitch({ type: 'new' });
+  }
+
+  function handleSwitchSave() {
+    if (!pendingSwitch) return;
+    saveInProgressToSession();
+    applySwitch(pendingSwitch);
+    setPendingSwitch(null);
+  }
+
+  function handleSwitchDiscard() {
+    if (!pendingSwitch) return;
+    applySwitch(pendingSwitch);
+    setPendingSwitch(null);
+  }
+
+  function handleSwitchCancel() {
+    setPendingSwitch(null);
   }
 
   function replaceSession(newSession: KifuSession, confirmMessage: string) {
@@ -122,6 +193,7 @@ function App() {
     setSession(normalizedSession);
     setInProgress(freshKyoku);
     setSavedSnapshot(snapshotOf(normalizedSession, freshKyoku));
+    setLoadedKyokuSnapshot(JSON.stringify(freshKyoku));
   }
 
   function handleNewSession() {
@@ -136,6 +208,13 @@ function App() {
     setSavedSnapshot(snapshotOf(session, inProgress));
   }
 
+  // 保存・読込画面へ移動する前に、編集中の局を履歴へ反映しておく(ダウンロードに含めるため)。
+  // 新規局への切り替えは行わず、編集中の内容はそのまま記録画面に残す
+  function handleGoToFileView() {
+    saveInProgressToSession();
+    setView('file');
+  }
+
   return (
     <div className="app" style={{ '--tile-size': TILE_SIZE_PX[tileSize] } as CSSProperties}>
       <header className="app__header">
@@ -144,7 +223,7 @@ function App() {
           <button type="button" className={view === 'record' ? 'active' : ''} onClick={() => setView('record')}>
             記録
           </button>
-          <button type="button" className={view === 'file' ? 'active' : ''} onClick={() => setView('file')}>
+          <button type="button" className={view === 'file' ? 'active' : ''} onClick={handleGoToFileView}>
             保存・読込
           </button>
         </nav>
@@ -166,6 +245,8 @@ function App() {
 
           <KyokuEditor
             kyoku={inProgress}
+            isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}
+            onStartNew={startNewKyoku}
             onChangeName={(name) => setInProgress((prev) => ({ ...prev, name }))}
             onChangeMemo={(resultMemo) => setInProgress((prev) => ({ ...prev, resultMemo }))}
             onAddHaipaiTile={addHaipaiTile}
@@ -180,12 +261,20 @@ function App() {
           />
 
           <h2>局の履歴</h2>
-          <SessionHistory kyokus={session.kyokus} />
+          <SessionHistory kyokus={session.kyokus} editingId={inProgress.id} onSelect={loadKyokuForEdit} />
         </main>
       ) : (
         <main className="app__main">
           <FilePanel session={session} onSessionReplace={handleSessionReplace} onDownloaded={handleDownloaded} />
         </main>
+      )}
+
+      {pendingSwitch && (
+        <UnsavedChangesDialog
+          onSave={handleSwitchSave}
+          onDiscard={handleSwitchDiscard}
+          onCancel={handleSwitchCancel}
+        />
       )}
     </div>
   );

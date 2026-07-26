@@ -6,14 +6,15 @@ export type Suit = 'm' | 'p' | 's' | 'z';
 // 牌譜の記録行に表示する牌のサイズ
 export type TileSize = 'small' | 'medium' | 'large';
 
-export type CallType = 'chi' | 'pon' | 'kan';
+export type CallType = 'chi' | 'pon' | 'kan' | 'ankan';
 
 // 鳴いた牌がどの相手から出たか
 export type CallSource = 'kamicha' | 'toimen' | 'shimocha';
 
 export interface Call {
   type: CallType;
-  from: CallSource;
+  /** 暗カンは自分の手牌から行うため未設定 */
+  from?: CallSource;
   tiles: Tile[];
 }
 
@@ -22,11 +23,19 @@ export interface Turn {
   draw?: Tile;
   /** チー/ポン/カンで鳴いた場合の情報。自摸の場合は未設定 */
   call?: Call;
-  discard: Tile;
+  /** カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない */
+  discard?: Tile;
   riichi: boolean;
+  /**
+   * 空切り: ツモった牌と同じ種類の牌を、ツモ切りに見せかけて手牌側から切ったこと。
+   * draw === discard の場合のみ意味を持つ
+   */
+  karagiri: boolean;
 }
 
 export interface Kyoku {
+  /** 局を一意に識別するID。将来の参照(他データとの紐付けなど)用に保持する */
+  id: string;
   /** 局名。例: "東1局0本場" */
   name: string;
   /** 配牌（最初の摸打を記録する前の手牌） */
