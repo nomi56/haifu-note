@@ -148,8 +148,8 @@
 .turn-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
+  gap: 8px;
+  padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
   flex-wrap: wrap;
@@ -162,7 +162,7 @@
 }
 
 .tile-emoji {
-  font-size: 22px;
+  font-size: 38px;
 }
 
 .turn-row__call {
