@@ -391,11 +391,6 @@
   margin-bottom: 10px;
 }
 
-.kyoku-editor__start-new {
-  font-size: 12px;
-  padding: 2px 8px;
-}
-
 .history-item--active {
   border-color: var(--accent-border);
 }
@@ -516,9 +511,21 @@
 }
 
 /* Session history */
+.session-history {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
 .session-history__empty {
   color: var(--text);
   font-style: italic;
+}
+
+.session-history__add {
+  width: 100%;
+  margin-top: 4px;
 }
 
 .history-item {

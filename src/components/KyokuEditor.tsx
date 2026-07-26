@@ -10,7 +10,6 @@ import type { Kyoku, Tile, TileSize, Turn } from '../types';
 interface KyokuEditorProps {
   kyoku: Kyoku;
   isEditingExisting: boolean;
-  onStartNew: () => void;
   onChangeName: (name: string) => void;
   onChangeMemo: (memo: string) => void;
   onAddHaipaiTile: (tile: Tile) => void;
@@ -33,7 +32,6 @@ const TILE_SIZE_OPTIONS: { value: TileSize; label: string }[] = [
 export function KyokuEditor({
   kyoku,
   isEditingExisting,
-  onStartNew,
   onChangeName,
   onChangeMemo,
   onAddHaipaiTile,
@@ -54,9 +52,6 @@ export function KyokuEditor({
       {isEditingExisting && (
         <div className="kyoku-editor__editing-banner">
           <span>既存の局を編集中（確定すると上書きされます）</span>
-          <button type="button" className="kyoku-editor__start-new" onClick={onStartNew}>
-            新規作成に切り替え
-          </button>
         </div>
       )}
       <div className="kyoku-editor__header">

@@ -5,6 +5,7 @@ interface SessionHistoryProps {
   kyokus: Kyoku[];
   editingId: string;
   onSelect: (kyoku: Kyoku) => void;
+  onAddNew: () => void;
 }
 
 function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolean; onSelect: (kyoku: Kyoku) => void }) {
@@ -23,15 +24,17 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
   );
 }
 
-export function SessionHistory({ kyokus, editingId, onSelect }: SessionHistoryProps) {
-  if (kyokus.length === 0) {
-    return <p className="session-history__empty">確定済みの局はまだありません</p>;
-  }
+export function SessionHistory({ kyokus, editingId, onSelect, onAddNew }: SessionHistoryProps) {
   return (
     <div className="session-history">
-      {[...kyokus].reverse().map((k) => (
-        <HistoryItem key={k.id} kyoku={k} active={k.id === editingId} onSelect={onSelect} />
-      ))}
+      {kyokus.length === 0 ? (
+        <p className="session-history__empty">確定済みの局はまだありません</p>
+      ) : (
+        [...kyokus].reverse().map((k) => <HistoryItem key={k.id} kyoku={k} active={k.id === editingId} onSelect={onSelect} />)
+      )}
+      <button type="button" className="session-history__add" onClick={onAddNew}>
+        ＋ 新しい局を追加
+      </button>
     </div>
   );
 }

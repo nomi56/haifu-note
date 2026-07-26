@@ -244,12 +244,16 @@ function App() {
           </div>
 
           <h2>局の履歴</h2>
-          <SessionHistory kyokus={session.kyokus} editingId={inProgress.id} onSelect={loadKyokuForEdit} />
+          <SessionHistory
+            kyokus={session.kyokus}
+            editingId={inProgress.id}
+            onSelect={loadKyokuForEdit}
+            onAddNew={startNewKyoku}
+          />
 
           <KyokuEditor
             kyoku={inProgress}
             isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}
-            onStartNew={startNewKyoku}
             onChangeName={(name) => setInProgress((prev) => ({ ...prev, name }))}
             onChangeMemo={(resultMemo) => setInProgress((prev) => ({ ...prev, resultMemo }))}
             onAddHaipaiTile={addHaipaiTile}
