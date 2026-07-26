@@ -243,6 +243,9 @@ function App() {
             </button>
           </div>
 
+          <h2>局の履歴</h2>
+          <SessionHistory kyokus={session.kyokus} editingId={inProgress.id} onSelect={loadKyokuForEdit} />
+
           <KyokuEditor
             kyoku={inProgress}
             isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}
@@ -259,9 +262,6 @@ function App() {
             tileSize={tileSize}
             onChangeTileSize={setTileSize}
           />
-
-          <h2>局の履歴</h2>
-          <SessionHistory kyokus={session.kyokus} editingId={inProgress.id} onSelect={loadKyokuForEdit} />
         </main>
       ) : (
         <main className="app__main">
