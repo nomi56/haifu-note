@@ -6,14 +6,15 @@ export type Suit = 'm' | 'p' | 's' | 'z';
 // 牌譜の記録行に表示する牌のサイズ
 export type TileSize = 'small' | 'medium' | 'large';
 
-export type CallType = 'chi' | 'pon' | 'kan' | 'ankan';
+// kan: 大明槓(他家の捨て牌からの明カン), kakan: 加槓(既存のポンに自分のツモ牌を加える)
+export type CallType = 'chi' | 'pon' | 'kan' | 'ankan' | 'kakan';
 
 // 鳴いた牌がどの相手から出たか
 export type CallSource = 'kamicha' | 'toimen' | 'shimocha';
 
 export interface Call {
   type: CallType;
-  /** 暗カンは自分の手牌から行うため未設定 */
+  /** 暗カン/加カンは相手からの牌ではないため未設定 */
   from?: CallSource;
   /**
    * 面子を構成する牌すべて(チー/ポンは3枚、カンは4枚)。

@@ -20,12 +20,16 @@ const MODE_LABEL: Record<Mode, string> = {
 
 const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan'];
 
-// どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし
-const CALL_SOURCE_OPTIONS: Partial<Record<Mode, CallSource[]>> = {
+// どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし。
+// カンは、他家の捨て牌からの通常のカン(上家/対面/下家)に加え、
+// 既存のポンにツモ牌を加える「加カン」も選べる
+const CALL_SOURCE_OPTIONS: Partial<Record<Mode, (CallSource | 'kakan')[]>> = {
   chi: ['kamicha'],
   pon: ['kamicha', 'toimen', 'shimocha'],
-  kan: ['kamicha', 'toimen', 'shimocha'],
+  kan: ['kamicha', 'toimen', 'shimocha', 'kakan'],
 };
+
+const KAKAN_LABEL = '加カン';
 
 const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   chi: 'チーした牌',
@@ -54,7 +58,7 @@ const ALLOWS_RIICHI: Record<Mode, boolean> = {
 export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [mode, setMode] = useState<Mode>('tsumo');
   const [drawTile, setDrawTile] = useState<Tile | null>(null);
-  const [callSource, setCallSource] = useState<CallSource>('kamicha');
+  const [callSource, setCallSource] = useState<CallSource | 'kakan'>('kamicha');
   const [callTile, setCallTile] = useState<Tile | null>(null);
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
@@ -104,8 +108,9 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       return { type: 'chi', from: 'kamicha', tiles: [callTile, ...others] };
     }
     if (mode === 'ankan') return { type: 'ankan', tiles: [callTile, callTile, callTile, callTile] };
+    if (mode === 'kan' && callSource === 'kakan') return { type: 'kakan', tiles: Array(4).fill(callTile) };
     const count = mode === 'kan' ? 4 : 3;
-    return { type: mode, from: callSource, tiles: Array(count).fill(callTile) };
+    return { type: mode, from: callSource as CallSource, tiles: Array(count).fill(callTile) };
   }
 
   // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる
@@ -160,7 +165,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
 
       {(mode === 'chi' || mode === 'pon' || mode === 'kan') && (
         <div className="turn-editor__section">
-          <h4>{CALL_TILE_LABEL[mode]}</h4>
+          <h4>{mode === 'kan' && callSource === 'kakan' ? '加カンする牌' : CALL_TILE_LABEL[mode]}</h4>
           {sourceOptions && sourceOptions.length > 1 && (
             <div className="turn-editor__call-controls">
               {sourceOptions.map((s) => (
@@ -170,7 +175,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
                   className={callSource === s ? 'active' : ''}
                   onClick={() => setCallSource(s)}
                 >
-                  {CALL_SOURCE_LABEL_MAP[s]}
+                  {s === 'kakan' ? KAKAN_LABEL : CALL_SOURCE_LABEL_MAP[s]}
                 </button>
               ))}
             </div>
@@ -178,7 +183,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
           <TileSelectField
             value={callTile}
             onChange={mode === 'chi' ? changeChiCallTile : setCallTile}
-            title={`${CALL_TILE_LABEL[mode]}を選ぶ`}
+            title={`${mode === 'kan' && callSource === 'kakan' ? '加カンする牌' : CALL_TILE_LABEL[mode]}を選ぶ`}
           />
         </div>
       )}

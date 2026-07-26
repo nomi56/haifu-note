@@ -102,6 +102,7 @@ export const CALL_TYPE_LABEL: Record<string, string> = {
   pon: 'ポン',
   kan: 'カン',
   ankan: '暗カン',
+  kakan: '加カン',
 };
 
 export const CALL_SOURCE_LABEL_MAP: Record<string, string> = {
@@ -120,12 +121,14 @@ export function isTsumogiri(turn: Turn): boolean {
   return turn.draw !== undefined && turn.draw === turn.discard;
 }
 
-/** 直前の手がカン/暗カンで、この手が自摸なら、リンシャンツモとみなす（保存はせず都度算出する） */
+const KAN_TYPES = new Set(['kan', 'ankan', 'kakan']);
+
+/** 直前の手がカン系(カン/暗カン/加カン)で、この手が自摸なら、リンシャンツモとみなす（保存はせず都度算出する） */
 export function isRinshan(turns: Turn[], index: number): boolean {
   const turn = turns[index];
   const prev = turns[index - 1];
   if (!prev?.call) return false;
-  return (prev.call.type === 'kan' || prev.call.type === 'ankan') && !turn.call;
+  return KAN_TYPES.has(prev.call.type) && !turn.call;
 }
 
 /**
