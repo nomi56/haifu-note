@@ -10,7 +10,6 @@ import type { Kyoku, Tile, TileSize, Turn } from '../types';
 interface KyokuEditorProps {
   kyoku: Kyoku;
   isEditingExisting: boolean;
-  onStartNew: () => void;
   onChangeName: (name: string) => void;
   onChangeMemo: (memo: string) => void;
   onAddHaipaiTile: (tile: Tile) => void;
@@ -19,7 +18,6 @@ interface KyokuEditorProps {
   onRemoveDoraIndicator: (index: number) => void;
   onAddTurn: (turn: Turn) => void;
   onRemoveLastTurn: () => void;
-  onConfirm: () => void;
   tileSize: TileSize;
   onChangeTileSize: (size: TileSize) => void;
 }
@@ -33,7 +31,6 @@ const TILE_SIZE_OPTIONS: { value: TileSize; label: string }[] = [
 export function KyokuEditor({
   kyoku,
   isEditingExisting,
-  onStartNew,
   onChangeName,
   onChangeMemo,
   onAddHaipaiTile,
@@ -42,7 +39,6 @@ export function KyokuEditor({
   onRemoveDoraIndicator,
   onAddTurn,
   onRemoveLastTurn,
-  onConfirm,
   tileSize,
   onChangeTileSize,
 }: KyokuEditorProps) {
@@ -53,10 +49,7 @@ export function KyokuEditor({
     <section className="kyoku-editor">
       {isEditingExisting && (
         <div className="kyoku-editor__editing-banner">
-          <span>既存の局を編集中（確定すると上書きされます）</span>
-          <button type="button" className="kyoku-editor__start-new" onClick={onStartNew}>
-            新規作成に切り替え
-          </button>
+          <span>既存の局を編集中（画面遷移時に自動で保存されます）</span>
         </div>
       )}
       <div className="kyoku-editor__header">
@@ -104,7 +97,7 @@ export function KyokuEditor({
       )}
 
       <div className="kyoku-editor__river-header">
-        <h3>牌譜</h3>
+        <h3>この局の記録</h3>
         <div className="tile-size-picker">
           <span className="tile-size-picker__label">牌の表示サイズ</span>
           {TILE_SIZE_OPTIONS.map((opt) => (
@@ -137,10 +130,6 @@ export function KyokuEditor({
           rows={2}
         />
       </div>
-
-      <button type="button" className="kyoku-editor__confirm" disabled={kyoku.turns.length === 0} onClick={onConfirm}>
-        {isEditingExisting ? 'この局を確定して上書き保存' : 'この局を確定して履歴に追加'}
-      </button>
     </section>
   );
 }

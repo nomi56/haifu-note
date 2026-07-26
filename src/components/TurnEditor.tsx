@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
 import { CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
@@ -114,7 +114,12 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   }
 
   // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる
-  const showKaragiriOption = mode === 'tsumo' && drawTile !== null && discardTile !== null && drawTile === discardTile;
+  const karagiriEnabled = mode === 'tsumo' && drawTile !== null && discardTile !== null && drawTile === discardTile;
+
+  // 条件を満たさなくなった場合はチェックを外しておく(グレーアウト中に選択状態だけ残らないように)
+  useEffect(() => {
+    if (!karagiriEnabled) setKaragiri(false);
+  }, [karagiriEnabled]);
 
   function handleAdd() {
     if (!canAdd) return;
@@ -123,7 +128,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       call: buildCall(),
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
       riichi: allowsRiichi && riichi,
-      karagiri: showKaragiriOption && karagiri,
+      karagiri: karagiriEnabled && karagiri,
     };
     onAdd(turn);
     reset();
@@ -222,9 +227,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
             <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
           </div>
 
-          <div
-            className={`turn-editor__footer${allowsRiichi || showKaragiriOption ? '' : ' turn-editor__footer--end'}`}
-          >
+          <div className="turn-editor__footer">
             <div className="turn-editor__footer-options">
               {allowsRiichi && (
                 <label className="turn-editor__riichi">
@@ -232,12 +235,15 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
                   リーチ宣言
                 </label>
               )}
-              {showKaragiriOption && (
-                <label className="turn-editor__karagiri">
-                  <input type="checkbox" checked={karagiri} onChange={(e) => setKaragiri(e.target.checked)} />
-                  空切り
-                </label>
-              )}
+              <label className={`turn-editor__karagiri${karagiriEnabled ? '' : ' turn-editor__karagiri--disabled'}`}>
+                <input
+                  type="checkbox"
+                  checked={karagiri}
+                  disabled={!karagiriEnabled}
+                  onChange={(e) => setKaragiri(e.target.checked)}
+                />
+                空切り
+              </label>
             </div>
             <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
               1手追加
