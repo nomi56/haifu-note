@@ -312,16 +312,17 @@
   position: relative;
   background: none;
   border: none;
-  padding: 1px;
+  padding: 0;
   line-height: 1;
   flex: 0 0 calc(100% / 13);
   min-width: 0;
   display: flex;
   justify-content: center;
+  container-type: inline-size;
 }
 
 .haipai-tile .tile-glyph {
-  font-size: clamp(15px, 5.5vw, 24px);
+  font-size: 95cqw;
 }
 
 .haipai-tile--empty {
