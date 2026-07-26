@@ -339,14 +339,12 @@
 
 .turn-editor__call-controls {
   display: flex;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-bottom: 6px;
 }
 
 .turn-editor__call-controls button {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 6px 4px;
   white-space: nowrap;
 }
 
