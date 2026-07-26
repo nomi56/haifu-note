@@ -306,7 +306,6 @@
   display: flex;
   width: 100%;
   margin-bottom: 10px;
-  cursor: pointer;
 }
 
 .haipai-tile {
@@ -325,11 +324,21 @@
   font-size: clamp(15px, 5.5vw, 24px);
 }
 
-.haipai-edit-done {
+.haipai-tile--empty {
+  color: var(--border);
+}
+
+.haipai-edit-open {
   font-size: 13px;
   padding: 2px 10px;
   color: var(--accent);
   border-color: var(--accent-border);
+}
+
+.haipai-editor__hint {
+  font-size: 12px;
+  color: var(--text);
+  margin: 8px 0;
 }
 
 .tile-chip {
