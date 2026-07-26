@@ -64,6 +64,10 @@ function App() {
   // 「ファイルに書き出していない変更がある」とみなし、離脱時に警告を出す
   const [savedSnapshot, setSavedSnapshot] = useState(() => snapshotOf(initial.session, initial.inProgress));
   const hasUnsavedChanges = snapshotOf(session, inProgress) !== savedSnapshot;
+  // 局を読み込んだ/新規作成した時点のスナップショット。ここからinProgressが変わっていなければ
+  // (読み込んだだけで未編集なら)局の切り替え時に確認ダイアログを出す必要はない
+  const [loadedKyokuSnapshot, setLoadedKyokuSnapshot] = useState(() => JSON.stringify(initial.inProgress));
+  const hasKyokuEdits = JSON.stringify(inProgress) !== loadedKyokuSnapshot;
 
   // localStorageへの書き込みは軽量なので即時保存する(デバウンスすると
   // 保存前にタブが閉じられ/リロードされた場合にデータを失う)
@@ -133,17 +137,21 @@ function App() {
   function confirmKyoku() {
     if (inProgress.turns.length === 0) return;
     saveInProgressToSession();
-    setInProgress(createEmptyKyoku());
+    const fresh = createEmptyKyoku();
+    setInProgress(fresh);
+    setLoadedKyokuSnapshot(JSON.stringify(fresh));
   }
 
   function applySwitch(action: PendingSwitch) {
-    setInProgress(action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku());
+    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku();
+    setInProgress(next);
+    setLoadedKyokuSnapshot(JSON.stringify(next));
   }
 
   // 編集中の局データを読み替える(既存局の読込/新規局への切り替え)。
-  // 未保存の内容があれば、破棄せず先にダイアログで確認する
+  // 読み込み時点から実際に編集されている場合のみ、破棄せず先にダイアログで確認する
   function requestSwitch(action: PendingSwitch) {
-    if (inProgress.turns.length > 0) {
+    if (hasKyokuEdits) {
       setPendingSwitch(action);
       return;
     }
@@ -185,6 +193,7 @@ function App() {
     setSession(normalizedSession);
     setInProgress(freshKyoku);
     setSavedSnapshot(snapshotOf(normalizedSession, freshKyoku));
+    setLoadedKyokuSnapshot(JSON.stringify(freshKyoku));
   }
 
   function handleNewSession() {
