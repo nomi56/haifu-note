@@ -575,12 +575,18 @@
 .history-item__header {
   width: 100%;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
   border: none;
   border-radius: 0;
   background: var(--surface);
   text-align: left;
+}
+
+.history-item__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .history-item__name {
@@ -592,6 +598,11 @@
 }
 
 .history-item__count {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.history-item__game-info {
   font-size: 12px;
   color: var(--text);
 }

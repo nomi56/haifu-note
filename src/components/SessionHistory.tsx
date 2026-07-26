@@ -1,4 +1,5 @@
 import { TileGlyph } from './TileGlyph';
+import { formatGameInfo } from '../gameInfo';
 import type { Kyoku } from '../types';
 
 interface SessionHistoryProps {
@@ -12,13 +13,16 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
   return (
     <div className={`history-item${active ? ' history-item--active' : ''}`}>
       <button type="button" className="history-item__header" onClick={() => onSelect(kyoku)}>
-        <span className="history-item__name">{kyoku.name || '(無題の局)'}</span>
-        <span className="history-item__dora">
-          {kyoku.doraIndicators.map((t, i) => (
-            <TileGlyph key={i} tile={t} />
-          ))}
-        </span>
-        <span className="history-item__count">{kyoku.turns.length}手</span>
+        <div className="history-item__row">
+          <span className="history-item__name">{kyoku.name || '(無題の局)'}</span>
+          <span className="history-item__dora">
+            {kyoku.doraIndicators.map((t, i) => (
+              <TileGlyph key={i} tile={t} />
+            ))}
+          </span>
+          <span className="history-item__count">{kyoku.turns.length}手</span>
+        </div>
+        {kyoku.gameInfo && <span className="history-item__game-info">{formatGameInfo(kyoku.gameInfo)}</span>}
       </button>
     </div>
   );
