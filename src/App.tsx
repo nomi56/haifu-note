@@ -3,6 +3,7 @@ import { FilePanel } from './components/FilePanel';
 import { KyokuEditor } from './components/KyokuEditor';
 import { SessionHistory } from './components/SessionHistory';
 import { UnsavedChangesDialog } from './components/UnsavedChangesDialog';
+import { DEFAULT_GAME_INFO } from './gameInfo';
 import * as storage from './storage';
 import type { GameInfo, Kyoku, KifuSession, Tile, TileSize, Turn } from './types';
 import './App.css';
@@ -13,8 +14,9 @@ type PendingSwitch = { type: 'kyoku'; kyoku: Kyoku } | { type: 'new' } | { type:
 
 const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', large: '38px' };
 
-// 新しい局を追加する際、gameInfoを渡すと直前の局の場の情報を初期値として引き継ぐ
-function createEmptyKyoku(gameInfo?: GameInfo): Kyoku {
+// 新しい局を追加する際、gameInfoを渡すと直前の局の場の情報を初期値として引き継ぐ。
+// 渡さない場合は既定値(1試合目/東1局/0本場/東家)から始める
+function createEmptyKyoku(gameInfo: GameInfo = DEFAULT_GAME_INFO): Kyoku {
   return {
     id: crypto.randomUUID(),
     name: '',
@@ -27,9 +29,14 @@ function createEmptyKyoku(gameInfo?: GameInfo): Kyoku {
   };
 }
 
-// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはid/haipaiが無いため補う
+// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはid/haipai/gameInfoが無いため補う
 function normalizeKyoku(kyoku: Kyoku): Kyoku {
-  return { ...kyoku, id: kyoku.id ?? crypto.randomUUID(), haipai: kyoku.haipai ?? [] };
+  return {
+    ...kyoku,
+    id: kyoku.id ?? crypto.randomUUID(),
+    haipai: kyoku.haipai ?? [],
+    gameInfo: kyoku.gameInfo ?? DEFAULT_GAME_INFO,
+  };
 }
 
 function createEmptySession(): KifuSession {

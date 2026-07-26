@@ -22,7 +22,7 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
           </span>
           <span className="history-item__count">{kyoku.turns.length}手</span>
         </div>
-        {kyoku.gameInfo && <span className="history-item__game-info">{formatGameInfo(kyoku.gameInfo)}</span>}
+        <span className="history-item__game-info">{formatGameInfo(kyoku.gameInfo)}</span>
       </button>
     </div>
   );

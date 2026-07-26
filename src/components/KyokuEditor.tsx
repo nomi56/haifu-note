@@ -6,7 +6,7 @@ import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
 import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
-import { DEFAULT_GAME_INFO, formatGameInfo } from '../gameInfo';
+import { formatGameInfo } from '../gameInfo';
 import type { GameInfo, Kyoku, Tile, TileSize, Turn } from '../types';
 
 interface KyokuEditorProps {
@@ -50,11 +50,6 @@ export function KyokuEditor({
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
   const [gameInfoEditorOpen, setGameInfoEditorOpen] = useState(false);
 
-  function openGameInfoEditor() {
-    if (!kyoku.gameInfo) onChangeGameInfo(DEFAULT_GAME_INFO);
-    setGameInfoEditorOpen(true);
-  }
-
   return (
     <section className="kyoku-editor">
       {isEditingExisting && (
@@ -72,10 +67,10 @@ export function KyokuEditor({
         />
       </div>
 
-      <button type="button" className="kyoku-editor__game-info" onClick={openGameInfoEditor}>
-        {kyoku.gameInfo ? formatGameInfo(kyoku.gameInfo) : '場の情報未設定'}
+      <button type="button" className="kyoku-editor__game-info" onClick={() => setGameInfoEditorOpen(true)}>
+        {formatGameInfo(kyoku.gameInfo)}
       </button>
-      {gameInfoEditorOpen && kyoku.gameInfo && (
+      {gameInfoEditorOpen && (
         <GameInfoEditor
           value={kyoku.gameInfo}
           onChange={onChangeGameInfo}
