@@ -404,8 +404,22 @@
   padding: 12px;
 }
 
+.kyoku-editor__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .kyoku-editor__name {
   width: 100%;
+}
+
+.kyoku-editor__game-info {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .kyoku-editor__editing-banner {
@@ -568,16 +582,23 @@
 .history-item__header {
   width: 100%;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
   border: none;
   border-radius: 0;
   background: var(--surface);
   text-align: left;
 }
 
+.history-item__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .history-item__name {
-  flex: 1;
+  font-size: 12px;
+  color: var(--text);
 }
 
 .history-item__dora {
@@ -587,6 +608,11 @@
 .history-item__count {
   font-size: 12px;
   color: var(--text);
+}
+
+.history-item__game-info {
+  flex: 1;
+  color: var(--text-h);
 }
 
 /* File panel */
@@ -609,4 +635,43 @@
 
 .file-panel__notice {
   color: var(--accent);
+}
+
+/* Game info editor */
+.game-info-editor__quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.game-info-editor__quick-actions button {
+  flex: 1 1 0;
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.game-info-editor__field {
+  margin-bottom: 12px;
+}
+
+.game-info-editor__label {
+  display: block;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.game-info-editor__stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-info-editor__stepper-value {
+  min-width: 5em;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-h);
 }
