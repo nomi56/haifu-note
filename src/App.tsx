@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { FilePanel } from './components/FilePanel';
 import { KyokuEditor } from './components/KyokuEditor';
 import { SessionHistory } from './components/SessionHistory';
 import * as storage from './storage';
-import type { Kyoku, KifuSession, Tile, Turn } from './types';
+import type { Kyoku, KifuSession, Tile, TileSize, Turn } from './types';
 import './App.css';
+
+const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', large: '38px' };
 
 function createEmptyKyoku(): Kyoku {
   return {
-    id: crypto.randomUUID(),
     name: '',
     doraIndicators: [],
     turns: [],
@@ -21,7 +22,6 @@ function createEmptySession(): KifuSession {
   const now = new Date().toISOString();
   return {
     version: 1,
-    id: crypto.randomUUID(),
     title: '',
     createdAt: now,
     updatedAt: now,
@@ -43,6 +43,7 @@ function App() {
   const [session, setSession] = useState<KifuSession>(initial.session);
   const [inProgress, setInProgress] = useState<Kyoku>(initial.inProgress);
   const [view, setView] = useState<View>('record');
+  const [tileSize, setTileSize] = useState<TileSize>(() => storage.loadTileSize());
   // ダウンロード/読込/新規作成した時点のスナップショット。現在の内容とズレていれば
   // 「ファイルに書き出していない変更がある」とみなし、離脱時に警告を出す
   const [savedSnapshot, setSavedSnapshot] = useState(() => snapshotOf(initial.session, initial.inProgress));
@@ -57,6 +58,10 @@ function App() {
   useEffect(() => {
     storage.saveInProgressKyoku(inProgress);
   }, [inProgress]);
+
+  useEffect(() => {
+    storage.saveTileSize(tileSize);
+  }, [tileSize]);
 
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
@@ -114,7 +119,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" style={{ '--tile-size': TILE_SIZE_PX[tileSize] } as CSSProperties}>
       <header className="app__header">
         <h1>🀄 麻雀牌譜記録</h1>
         <nav className="app__nav">
@@ -150,6 +155,8 @@ function App() {
             onAddTurn={addTurn}
             onRemoveLastTurn={removeLastTurn}
             onConfirm={confirmKyoku}
+            tileSize={tileSize}
+            onChangeTileSize={setTileSize}
           />
 
           <h2>局の履歴</h2>

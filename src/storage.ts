@@ -1,7 +1,10 @@
-import type { Kyoku, KifuSession } from './types';
+import type { Kyoku, KifuSession, TileSize } from './types';
 
 const SESSION_KEY = 'haifu-note:session';
 const IN_PROGRESS_KEY = 'haifu-note:inProgressKyoku';
+const TILE_SIZE_KEY = 'haifu-note:tileSize';
+
+const TILE_SIZES: TileSize[] = ['small', 'medium', 'large'];
 
 export function loadSession(): KifuSession | null {
   const raw = localStorage.getItem(SESSION_KEY);
@@ -39,4 +42,13 @@ export function saveInProgressKyoku(kyoku: Kyoku): void {
 
 export function clearInProgressKyoku(): void {
   localStorage.removeItem(IN_PROGRESS_KEY);
+}
+
+export function loadTileSize(): TileSize {
+  const raw = localStorage.getItem(TILE_SIZE_KEY);
+  return TILE_SIZES.includes(raw as TileSize) ? (raw as TileSize) : 'large';
+}
+
+export function saveTileSize(size: TileSize): void {
+  localStorage.setItem(TILE_SIZE_KEY, size);
 }

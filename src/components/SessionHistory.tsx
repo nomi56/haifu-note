@@ -38,7 +38,7 @@ export function SessionHistory({ kyokus }: SessionHistoryProps) {
   return (
     <div className="session-history">
       {[...kyokus].reverse().map((k) => (
-        <HistoryItem key={k.id} kyoku={k} />
+        <HistoryItem key={k.confirmedAt} kyoku={k} />
       ))}
     </div>
   );
