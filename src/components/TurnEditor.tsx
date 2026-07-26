@@ -16,7 +16,7 @@ const MODE_LABEL: Record<Mode, string> = {
   pon: 'ポン',
   kan: 'カン',
   ankan: '暗カン',
-  agari: '上り',
+  agari: '和了',
 };
 
 const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan', 'agari'];
@@ -41,7 +41,7 @@ const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
 };
 
 // カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない。
-// 上りは局の最後の手であり、この後に打牌は発生しない
+// 和了は局の最後の手であり、この後に打牌は発生しない
 const NEEDS_DISCARD: Record<Mode, boolean> = {
   tsumo: true,
   chi: true,
@@ -171,11 +171,11 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       {mode === 'agari' && (
         <>
           <div className="turn-editor__section">
-            <h4>上り牌</h4>
-            <TileSelectField value={agariTile} onChange={setAgariTile} title="上り牌を選ぶ" />
+            <h4>和了牌</h4>
+            <TileSelectField value={agariTile} onChange={setAgariTile} title="和了牌を選ぶ" />
           </div>
           <div className="turn-editor__section">
-            <h4>上り方</h4>
+            <h4>和了方</h4>
             <div className="turn-editor__call-controls">
               {AGARI_SOURCE_OPTIONS.map((s) => (
                 <button

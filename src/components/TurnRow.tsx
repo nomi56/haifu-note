@@ -27,7 +27,7 @@ export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
       ) : turn.agari ? (
         <span className="turn-row__draw">
           {rinshan && <span className="turn-row__rinshan-badge">リンシャン</span>}
-          <span className="turn-row__agari-badge">上り</span>
+          <span className="turn-row__agari-badge">和了</span>
           <TileGlyph tile={turn.agari.tile} className="tile-emoji" />
         </span>
       ) : (
