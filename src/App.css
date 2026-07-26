@@ -275,7 +275,13 @@
   width: 100%;
 }
 
-.kyoku-editor__haipai,
+.kyoku-editor__haipai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0 6px;
+}
+
 .kyoku-editor__dora {
   display: flex;
   align-items: center;
@@ -294,6 +300,40 @@
 .tile-chip-add {
   font-size: 16px;
   padding: 2px 8px;
+}
+
+.haipai-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+
+.haipai-tile {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+}
+
+.tile-chip {
+  position: relative;
+}
+
+.tile-chip__remove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
 }
 
 .kyoku-editor__undo {

@@ -59,17 +59,24 @@ export function KyokuEditor({
         />
       </div>
 
-      <div className="kyoku-editor__haipai">
+      <div className="kyoku-editor__haipai-header">
         <span className="kyoku-editor__haipai-label">配牌（{kyoku.haipai.length}枚）</span>
-        {sortedHaipai.map(({ tile, index }) => (
-          <button key={index} type="button" className="tile-chip" onClick={() => onRemoveHaipaiTile(index)}>
-            <TileGlyph tile={tile} /> ×
-          </button>
-        ))}
         <button type="button" className="tile-chip-add" onClick={() => setHaipaiPickerOpen((v) => !v)}>
           ＋
         </button>
       </div>
+      {kyoku.haipai.length > 0 && (
+        <div className="haipai-tiles">
+          {sortedHaipai.map(({ tile, index }) => (
+            <button key={index} type="button" className="haipai-tile" onClick={() => onRemoveHaipaiTile(index)}>
+              <TileGlyph tile={tile} className="tile-emoji" />
+              <span className="tile-chip__remove" aria-hidden="true">
+                ×
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
       {haipaiPickerOpen && (
         <TileSelectModal
           title="配牌を選ぶ（続けてタップで複数選択）"
@@ -83,7 +90,10 @@ export function KyokuEditor({
         <span className="kyoku-editor__dora-label">ドラ表示牌</span>
         {kyoku.doraIndicators.map((tile, i) => (
           <button key={`${tile}-${i}`} type="button" className="tile-chip" onClick={() => onRemoveDoraIndicator(i)}>
-            <TileGlyph tile={tile} /> ×
+            <TileGlyph tile={tile} />
+            <span className="tile-chip__remove" aria-hidden="true">
+              ×
+            </span>
           </button>
         ))}
         <button type="button" className="tile-chip-add" onClick={() => setDoraPickerOpen((v) => !v)}>
