@@ -253,6 +253,14 @@
   color: var(--text);
 }
 
+.turn-row__draw {
+  /* バッジ+牌グリフのように高さの異なるinline要素が混在すると、
+     ブラウザによってinline要素の基準線(baseline)計算が異なりズレて見えることがあるため、
+     ブラウザ依存のbaseline計算に頼らずflexで明示的に中央揃えする */
+  display: inline-flex;
+  align-items: center;
+}
+
 .turn-row__rinshan-badge {
   font-size: 11px;
   color: var(--accent);
