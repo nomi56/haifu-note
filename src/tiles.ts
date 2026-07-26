@@ -1,4 +1,4 @@
-import type { Suit, Tile, Turn } from './types';
+import type { Call, CallSource, Suit, Tile, Turn } from './types';
 
 interface TileInfo {
   tile: Tile;
@@ -73,6 +73,19 @@ export function isRedFive(tile: Tile): boolean {
   return getTileInfo(tile)?.isRed ?? false;
 }
 
+/** 赤5をゲーム内に1枚しかない通常の5に変換する（それ以外の牌はそのまま） */
+export function normalFive(tile: Tile): Tile {
+  return isRedFive(tile) ? `5${tile[1]}` : tile;
+}
+
+/**
+ * ポン/カン/暗カン用に、鳴いた(またはカンする)牌1枚からN枚の面子を作る。
+ * 赤5はゲーム内に1枚しかないため、鳴いた牌が赤5でも残りは通常の5にする
+ */
+export function fillMeldTiles(tile: Tile, count: number): Tile[] {
+  return [tile, ...Array(count - 1).fill(normalFive(tile))];
+}
+
 export function tileSuit(tile: Tile): Suit | undefined {
   return getTileInfo(tile)?.suit;
 }
@@ -102,6 +115,7 @@ export const CALL_TYPE_LABEL: Record<string, string> = {
   pon: 'ポン',
   kan: 'カン',
   ankan: '暗カン',
+  kakan: '加カン',
 };
 
 export const CALL_SOURCE_LABEL_MAP: Record<string, string> = {
@@ -120,10 +134,46 @@ export function isTsumogiri(turn: Turn): boolean {
   return turn.draw !== undefined && turn.draw === turn.discard;
 }
 
-/** 直前の手がカン/暗カンで、この手が自摸なら、リンシャンツモとみなす（保存はせず都度算出する） */
+const KAN_TYPES = new Set(['kan', 'ankan', 'kakan']);
+
+/** 直前の手がカン系(カン/暗カン/加カン)で、この手が自摸なら、リンシャンツモとみなす（保存はせず都度算出する） */
 export function isRinshan(turns: Turn[], index: number): boolean {
   const turn = turns[index];
   const prev = turns[index - 1];
   if (!prev?.call) return false;
-  return (prev.call.type === 'kan' || prev.call.type === 'ankan') && !turn.call;
+  return KAN_TYPES.has(prev.call.type) && !turn.call;
+}
+
+/**
+ * チーで鳴いた牌から、成立しうる順子の候補を返す（例: 3を鳴いたら 123/234/345）。
+ * 各候補は鳴いた牌を実際の値（赤5等）のまま含み、他家/字牌は候補なし([])
+ */
+export function chiCandidates(calledTile: Tile): Tile[][] {
+  const info = getTileInfo(calledTile);
+  if (!info || info.suit === 'z') return [];
+  const suit = info.suit;
+  const n = info.isRed ? 5 : Number(calledTile[0]);
+  const starts = [n - 2, n - 1, n].filter((start) => start >= 1 && start + 2 <= 9);
+  return starts.map((start) =>
+    [start, start + 1, start + 2].map((num) => (num === n ? calledTile : `${num}${suit}`)),
+  );
+}
+
+/**
+ * 面子を構成する牌を、実際に並べる見た目の順（鳴いた牌がどちらから来たかで配置・回転が決まる）に変換する。
+ * チーは常に上家なので左端。ポン/カンは相手により左端/中央寄り/右端になる。暗カンは回転なし
+ */
+export function callDisplayTiles(call: Call): { tile: Tile; rotated: boolean }[] {
+  if (call.type === 'ankan' || !call.from) {
+    return call.tiles.map((tile) => ({ tile, rotated: false }));
+  }
+  const [called, ...others] = call.tiles;
+  const position: Record<CallSource, number> = {
+    kamicha: 0,
+    toimen: Math.floor(call.tiles.length / 2),
+    shimocha: call.tiles.length - 1,
+  };
+  const arranged = others.map((tile) => ({ tile, rotated: false }));
+  arranged.splice(position[call.from], 0, { tile: called, rotated: true });
+  return arranged;
 }

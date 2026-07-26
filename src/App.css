@@ -275,6 +275,17 @@
   transform: rotate(90deg);
 }
 
+.tile-meld {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.tile-emoji--rotated {
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
 .turn-row__label {
   font-size: 12px;
   color: var(--text);
@@ -312,6 +323,16 @@
   display: flex;
   gap: 6px;
   margin-bottom: 6px;
+}
+
+.turn-editor__chi-candidates {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.turn-editor__chi-candidate {
+  padding: 4px 10px;
 }
 
 .turn-editor__footer {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
-import { CALL_SOURCE_LABEL_MAP } from '../tiles';
+import { CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
 import type { Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
@@ -19,12 +20,16 @@ const MODE_LABEL: Record<Mode, string> = {
 
 const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan'];
 
-// どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし
-const CALL_SOURCE_OPTIONS: Partial<Record<Mode, CallSource[]>> = {
+// どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし。
+// カンは、他家の捨て牌からの通常のカン(上家/対面/下家)に加え、
+// 既存のポンにツモ牌を加える「加カン」も選べる
+const CALL_SOURCE_OPTIONS: Partial<Record<Mode, (CallSource | 'kakan')[]>> = {
   chi: ['kamicha'],
   pon: ['kamicha', 'toimen', 'shimocha'],
-  kan: ['kamicha', 'toimen', 'shimocha'],
+  kan: ['kamicha', 'toimen', 'shimocha', 'kakan'],
 };
+
+const KAKAN_LABEL = '加カン';
 
 const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   chi: 'チーした牌',
@@ -53,11 +58,13 @@ const ALLOWS_RIICHI: Record<Mode, boolean> = {
 export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [mode, setMode] = useState<Mode>('tsumo');
   const [drawTile, setDrawTile] = useState<Tile | null>(null);
-  const [callSource, setCallSource] = useState<CallSource>('kamicha');
+  const [callSource, setCallSource] = useState<CallSource | 'kakan'>('kamicha');
   const [callTile, setCallTile] = useState<Tile | null>(null);
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
   const [karagiri, setKaragiri] = useState(false);
+  // チーの形(123/234/345等)。昇順3枚の並びで保持し、鳴いた牌はcallTileと同じ値で含まれる
+  const [chiMeld, setChiMeld] = useState<Tile[] | null>(null);
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
@@ -65,9 +72,11 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   // 後から暗カンする場合など)ため、両方を別々に入力する
   const requiresDraw = mode === 'tsumo' || mode === 'ankan';
   const requiresCallTile = mode !== 'tsumo';
+  const requiresChiMeld = mode === 'chi';
   const canAdd =
     (!requiresDraw || drawTile !== null) &&
     (!requiresCallTile || callTile !== null) &&
+    (!requiresChiMeld || chiMeld !== null) &&
     (!needsDiscard || discardTile !== null);
 
   function reset() {
@@ -76,6 +85,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     setDiscardTile(null);
     setRiichi(false);
     setKaragiri(false);
+    setChiMeld(null);
   }
 
   function changeMode(next: Mode) {
@@ -85,11 +95,22 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     reset();
   }
 
+  function changeChiCallTile(tile: Tile) {
+    setCallTile(tile);
+    setChiMeld(null);
+  }
+
   function buildCall(): Call | undefined {
     if (mode === 'tsumo' || !callTile) return undefined;
-    if (mode === 'chi') return { type: 'chi', from: 'kamicha', tiles: [callTile] };
-    if (mode === 'ankan') return { type: 'ankan', tiles: [callTile] };
-    return { type: mode, from: callSource, tiles: [callTile] };
+    if (mode === 'chi') {
+      if (!chiMeld) return undefined;
+      const others = chiMeld.filter((t) => t !== callTile);
+      return { type: 'chi', from: 'kamicha', tiles: [callTile, ...others] };
+    }
+    if (mode === 'ankan') return { type: 'ankan', tiles: fillMeldTiles(callTile, 4) };
+    if (mode === 'kan' && callSource === 'kakan') return { type: 'kakan', tiles: fillMeldTiles(callTile, 4) };
+    const count = mode === 'kan' ? 4 : 3;
+    return { type: mode, from: callSource as CallSource, tiles: fillMeldTiles(callTile, count) };
   }
 
   // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる
@@ -144,7 +165,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
 
       {(mode === 'chi' || mode === 'pon' || mode === 'kan') && (
         <div className="turn-editor__section">
-          <h4>{CALL_TILE_LABEL[mode]}</h4>
+          <h4>{mode === 'kan' && callSource === 'kakan' ? '加カンする牌' : CALL_TILE_LABEL[mode]}</h4>
           {sourceOptions && sourceOptions.length > 1 && (
             <div className="turn-editor__call-controls">
               {sourceOptions.map((s) => (
@@ -154,12 +175,43 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
                   className={callSource === s ? 'active' : ''}
                   onClick={() => setCallSource(s)}
                 >
-                  {CALL_SOURCE_LABEL_MAP[s]}
+                  {s === 'kakan' ? KAKAN_LABEL : CALL_SOURCE_LABEL_MAP[s]}
                 </button>
               ))}
             </div>
           )}
-          <TileSelectField value={callTile} onChange={setCallTile} title={`${CALL_TILE_LABEL[mode]}を選ぶ`} />
+          <TileSelectField
+            value={callTile}
+            onChange={mode === 'chi' ? changeChiCallTile : setCallTile}
+            title={`${mode === 'kan' && callSource === 'kakan' ? '加カンする牌' : CALL_TILE_LABEL[mode]}を選ぶ`}
+          />
+        </div>
+      )}
+
+      {mode === 'chi' && callTile && (
+        <div className="turn-editor__section">
+          <h4>チーの形</h4>
+          {chiCandidates(callTile).length === 0 ? (
+            <p className="turn-editor__hint">この牌はチーできません</p>
+          ) : (
+            <div className="turn-editor__chi-candidates">
+              {chiCandidates(callTile).map((candidate) => {
+                const others = candidate.filter((t) => t !== callTile);
+                const display = [{ tile: callTile, rotated: true }, ...others.map((t) => ({ tile: t, rotated: false }))];
+                const selected = chiMeld?.join(',') === candidate.join(',');
+                return (
+                  <button
+                    key={candidate.join(',')}
+                    type="button"
+                    className={`turn-editor__chi-candidate${selected ? ' active' : ''}`}
+                    onClick={() => setChiMeld(candidate)}
+                  >
+                    <TileMeld tiles={display} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
