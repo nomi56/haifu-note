@@ -27,6 +27,8 @@ export interface Turn {
 }
 
 export interface Kyoku {
+  /** 局を一意に識別するID。将来の参照(他データとの紐付けなど)用に保持する */
+  id: string;
   /** 局名。例: "東1局0本場" */
   name: string;
   /** 配牌（最初の摸打を記録する前の手牌） */

@@ -10,6 +10,7 @@ const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', 
 
 function createEmptyKyoku(): Kyoku {
   return {
+    id: crypto.randomUUID(),
     name: '',
     haipai: [],
     doraIndicators: [],
@@ -19,9 +20,9 @@ function createEmptyKyoku(): Kyoku {
   };
 }
 
-// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはhaipaiが無いため補う
+// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはid/haipaiが無いため補う
 function normalizeKyoku(kyoku: Kyoku): Kyoku {
-  return { ...kyoku, haipai: kyoku.haipai ?? [] };
+  return { ...kyoku, id: kyoku.id ?? crypto.randomUUID(), haipai: kyoku.haipai ?? [] };
 }
 
 function createEmptySession(): KifuSession {
