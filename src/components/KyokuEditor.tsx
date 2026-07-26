@@ -49,7 +49,7 @@ export function KyokuEditor({
     <section className="kyoku-editor">
       {isEditingExisting && (
         <div className="kyoku-editor__editing-banner">
-          <span>既存の局を編集中（他の局に切り替える際、保存するか確認されます）</span>
+          <span>既存の局を編集中</span>
         </div>
       )}
       <div className="kyoku-editor__header">

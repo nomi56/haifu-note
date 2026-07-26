@@ -31,6 +31,15 @@
   flex: 1;
 }
 
+.app__save-now {
+  width: 100%;
+  margin-top: 16px;
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* Tile picker */
 .tile-picker {
   display: flex;
