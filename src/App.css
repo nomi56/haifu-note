@@ -99,7 +99,7 @@
 }
 
 .tile-select-field__preview {
-  font-size: 28px;
+  font-size: var(--tile-size, 38px);
 }
 
 .tile-select-field__empty {
@@ -420,10 +420,17 @@
   color: var(--text);
 }
 
-.tile-chip,
 .tile-chip-add {
   font-size: 16px;
   padding: 2px 8px;
+}
+
+.tile-chip {
+  padding: 2px 8px;
+}
+
+.tile-chip .tile-glyph {
+  font-size: var(--tile-size, 38px);
 }
 
 .haipai-tiles {
@@ -499,15 +506,6 @@
 
 .kyoku-editor__memo textarea {
   resize: vertical;
-}
-
-.kyoku-editor__confirm {
-  width: 100%;
-  margin-top: 12px;
-  background: var(--accent-bg);
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
 }
 
 /* Session history */

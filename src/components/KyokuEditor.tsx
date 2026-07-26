@@ -18,7 +18,6 @@ interface KyokuEditorProps {
   onRemoveDoraIndicator: (index: number) => void;
   onAddTurn: (turn: Turn) => void;
   onRemoveLastTurn: () => void;
-  onConfirm: () => void;
   tileSize: TileSize;
   onChangeTileSize: (size: TileSize) => void;
 }
@@ -40,7 +39,6 @@ export function KyokuEditor({
   onRemoveDoraIndicator,
   onAddTurn,
   onRemoveLastTurn,
-  onConfirm,
   tileSize,
   onChangeTileSize,
 }: KyokuEditorProps) {
@@ -51,7 +49,7 @@ export function KyokuEditor({
     <section className="kyoku-editor">
       {isEditingExisting && (
         <div className="kyoku-editor__editing-banner">
-          <span>既存の局を編集中（確定すると上書きされます）</span>
+          <span>既存の局を編集中（画面遷移時に自動で保存されます）</span>
         </div>
       )}
       <div className="kyoku-editor__header">
@@ -132,10 +130,6 @@ export function KyokuEditor({
           rows={2}
         />
       </div>
-
-      <button type="button" className="kyoku-editor__confirm" disabled={kyoku.turns.length === 0} onClick={onConfirm}>
-        {isEditingExisting ? 'この局を確定して上書き保存' : 'この局を確定して履歴に追加'}
-      </button>
     </section>
   );
 }
