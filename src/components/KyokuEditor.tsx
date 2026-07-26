@@ -58,6 +58,9 @@ export function KyokuEditor({
         </div>
       )}
       <div className="kyoku-editor__header">
+        <button type="button" className="kyoku-editor__game-info" onClick={() => setGameInfoEditorOpen(true)}>
+          {formatGameInfo(kyoku.gameInfo)}
+        </button>
         <input
           className="kyoku-editor__name"
           type="text"
@@ -66,10 +69,6 @@ export function KyokuEditor({
           onChange={(e) => onChangeName(e.target.value)}
         />
       </div>
-
-      <button type="button" className="kyoku-editor__game-info" onClick={() => setGameInfoEditorOpen(true)}>
-        {formatGameInfo(kyoku.gameInfo)}
-      </button>
       {gameInfoEditorOpen && (
         <GameInfoEditor
           value={kyoku.gameInfo}

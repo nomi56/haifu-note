@@ -404,14 +404,22 @@
   padding: 12px;
 }
 
+.kyoku-editor__header {
+  display: flex;
+  gap: 8px;
+}
+
 .kyoku-editor__name {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .kyoku-editor__game-info {
-  display: block;
-  width: 100%;
-  margin-top: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 }
 
