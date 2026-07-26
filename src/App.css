@@ -181,7 +181,7 @@
 .river-view {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .river-view__empty {
@@ -193,8 +193,8 @@
 .turn-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 6px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
   flex-wrap: wrap;
