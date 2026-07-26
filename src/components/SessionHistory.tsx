@@ -14,7 +14,7 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
     <div className={`history-item${active ? ' history-item--active' : ''}`}>
       <button type="button" className="history-item__header" onClick={() => onSelect(kyoku)}>
         <div className="history-item__row">
-          <span className="history-item__name">{kyoku.name || '(無題の局)'}</span>
+          <span className="history-item__game-info">{formatGameInfo(kyoku.gameInfo)}</span>
           <span className="history-item__dora">
             {kyoku.doraIndicators.map((t, i) => (
               <TileGlyph key={i} tile={t} />
@@ -22,7 +22,7 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
           </span>
           <span className="history-item__count">{kyoku.turns.length}手</span>
         </div>
-        <span className="history-item__game-info">{formatGameInfo(kyoku.gameInfo)}</span>
+        {kyoku.name && <span className="history-item__name">{kyoku.name}</span>}
       </button>
     </div>
   );
