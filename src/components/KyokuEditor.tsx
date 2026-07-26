@@ -3,12 +3,15 @@ import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
 import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
+import { tileSortKey } from '../tiles';
 import type { Kyoku, Tile, TileSize, Turn } from '../types';
 
 interface KyokuEditorProps {
   kyoku: Kyoku;
   onChangeName: (name: string) => void;
   onChangeMemo: (memo: string) => void;
+  onAddHaipaiTile: (tile: Tile) => void;
+  onRemoveHaipaiTile: (index: number) => void;
   onAddDoraIndicator: (tile: Tile) => void;
   onRemoveDoraIndicator: (index: number) => void;
   onAddTurn: (turn: Turn) => void;
@@ -28,6 +31,8 @@ export function KyokuEditor({
   kyoku,
   onChangeName,
   onChangeMemo,
+  onAddHaipaiTile,
+  onRemoveHaipaiTile,
   onAddDoraIndicator,
   onRemoveDoraIndicator,
   onAddTurn,
@@ -36,7 +41,11 @@ export function KyokuEditor({
   tileSize,
   onChangeTileSize,
 }: KyokuEditorProps) {
+  const [haipaiPickerOpen, setHaipaiPickerOpen] = useState(false);
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
+  const sortedHaipai = kyoku.haipai
+    .map((tile, index) => ({ tile, index }))
+    .sort((a, b) => tileSortKey(a.tile) - tileSortKey(b.tile));
 
   return (
     <section className="kyoku-editor">
@@ -50,14 +59,34 @@ export function KyokuEditor({
         />
       </div>
 
-      <div className="kyoku-editor__dora">
-        <span className="kyoku-editor__dora-label">ドラ表示牌</span>
-        {kyoku.doraIndicators.map((tile, i) => (
-          <button key={`${tile}-${i}`} type="button" className="dora-chip" onClick={() => onRemoveDoraIndicator(i)}>
+      <div className="kyoku-editor__haipai">
+        <span className="kyoku-editor__haipai-label">配牌（{kyoku.haipai.length}枚）</span>
+        {sortedHaipai.map(({ tile, index }) => (
+          <button key={index} type="button" className="tile-chip" onClick={() => onRemoveHaipaiTile(index)}>
             <TileGlyph tile={tile} /> ×
           </button>
         ))}
-        <button type="button" className="dora-add" onClick={() => setDoraPickerOpen((v) => !v)}>
+        <button type="button" className="tile-chip-add" onClick={() => setHaipaiPickerOpen((v) => !v)}>
+          ＋
+        </button>
+      </div>
+      {haipaiPickerOpen && (
+        <TileSelectModal
+          title="配牌を選ぶ（続けてタップで複数選択）"
+          onSelect={onAddHaipaiTile}
+          onClose={() => setHaipaiPickerOpen(false)}
+          keepOpenOnSelect
+        />
+      )}
+
+      <div className="kyoku-editor__dora">
+        <span className="kyoku-editor__dora-label">ドラ表示牌</span>
+        {kyoku.doraIndicators.map((tile, i) => (
+          <button key={`${tile}-${i}`} type="button" className="tile-chip" onClick={() => onRemoveDoraIndicator(i)}>
+            <TileGlyph tile={tile} /> ×
+          </button>
+        ))}
+        <button type="button" className="tile-chip-add" onClick={() => setDoraPickerOpen((v) => !v)}>
           ＋
         </button>
       </div>

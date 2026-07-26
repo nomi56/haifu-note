@@ -29,6 +29,8 @@ export interface Turn {
 export interface Kyoku {
   /** 局名。例: "東1局0本場" */
   name: string;
+  /** 配牌（最初の摸打を記録する前の手牌） */
+  haipai: Tile[];
   /** ドラ表示牌（カンドラ含め複数可） */
   doraIndicators: Tile[];
   turns: Turn[];

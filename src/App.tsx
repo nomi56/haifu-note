@@ -11,11 +11,17 @@ const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', 
 function createEmptyKyoku(): Kyoku {
   return {
     name: '',
+    haipai: [],
     doraIndicators: [],
     turns: [],
     resultMemo: '',
     confirmedAt: '',
   };
+}
+
+// 本フィールド追加前に保存されたデータ(localStorage/JSONファイル)にはhaipaiが無いため補う
+function normalizeKyoku(kyoku: Kyoku): Kyoku {
+  return { ...kyoku, haipai: kyoku.haipai ?? [] };
 }
 
 function createEmptySession(): KifuSession {
@@ -36,10 +42,13 @@ function snapshotOf(session: KifuSession, inProgress: Kyoku): string {
 }
 
 function App() {
-  const [initial] = useState(() => ({
-    session: storage.loadSession() ?? createEmptySession(),
-    inProgress: storage.loadInProgressKyoku() ?? createEmptyKyoku(),
-  }));
+  const [initial] = useState(() => {
+    const loadedSession = storage.loadSession() ?? createEmptySession();
+    return {
+      session: { ...loadedSession, kyokus: loadedSession.kyokus.map(normalizeKyoku) },
+      inProgress: normalizeKyoku(storage.loadInProgressKyoku() ?? createEmptyKyoku()),
+    };
+  });
   const [session, setSession] = useState<KifuSession>(initial.session);
   const [inProgress, setInProgress] = useState<Kyoku>(initial.inProgress);
   const [view, setView] = useState<View>('record');
@@ -81,6 +90,14 @@ function App() {
     setInProgress((prev) => ({ ...prev, turns: prev.turns.slice(0, -1) }));
   }
 
+  function addHaipaiTile(tile: Tile) {
+    setInProgress((prev) => ({ ...prev, haipai: [...prev.haipai, tile] }));
+  }
+
+  function removeHaipaiTile(index: number) {
+    setInProgress((prev) => ({ ...prev, haipai: prev.haipai.filter((_, i) => i !== index) }));
+  }
+
   function addDoraIndicator(tile: Tile) {
     setInProgress((prev) => ({ ...prev, doraIndicators: [...prev.doraIndicators, tile] }));
   }
@@ -100,10 +117,11 @@ function App() {
     if (session.kyokus.length > 0 || inProgress.turns.length > 0) {
       if (!window.confirm(confirmMessage)) return;
     }
+    const normalizedSession = { ...newSession, kyokus: newSession.kyokus.map(normalizeKyoku) };
     const freshKyoku = createEmptyKyoku();
-    setSession(newSession);
+    setSession(normalizedSession);
     setInProgress(freshKyoku);
-    setSavedSnapshot(snapshotOf(newSession, freshKyoku));
+    setSavedSnapshot(snapshotOf(normalizedSession, freshKyoku));
   }
 
   function handleNewSession() {
@@ -150,6 +168,8 @@ function App() {
             kyoku={inProgress}
             onChangeName={(name) => setInProgress((prev) => ({ ...prev, name }))}
             onChangeMemo={(resultMemo) => setInProgress((prev) => ({ ...prev, resultMemo }))}
+            onAddHaipaiTile={addHaipaiTile}
+            onRemoveHaipaiTile={removeHaipaiTile}
             onAddDoraIndicator={addDoraIndicator}
             onRemoveDoraIndicator={removeDoraIndicator}
             onAddTurn={addTurn}

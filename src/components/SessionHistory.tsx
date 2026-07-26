@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
+import { tileSortKey } from '../tiles';
 import type { Kyoku } from '../types';
 
 interface SessionHistoryProps {
@@ -23,6 +24,16 @@ function HistoryItem({ kyoku }: { kyoku: Kyoku }) {
       </button>
       {open && (
         <div className="history-item__body">
+          {kyoku.haipai.length > 0 && (
+            <div className="history-item__haipai">
+              <span className="history-item__haipai-label">配牌</span>
+              {[...kyoku.haipai]
+                .sort((a, b) => tileSortKey(a) - tileSortKey(b))
+                .map((t, i) => (
+                  <TileGlyph key={i} tile={t} className="tile-emoji" />
+                ))}
+            </div>
+          )}
           <RiverView turns={kyoku.turns} />
           {kyoku.resultMemo && <p className="history-item__memo">{kyoku.resultMemo}</p>}
         </div>
