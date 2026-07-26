@@ -247,23 +247,13 @@
   color: var(--text);
 }
 
-.turn-row__draw {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.turn-row__discard {
-  display: inline-flex;
-  align-items: center;
-}
-
 .turn-row__rinshan-badge {
   font-size: 11px;
   color: var(--accent);
   border: 1px solid var(--accent-border);
   border-radius: 4px;
   padding: 1px 5px;
+  margin-right: 4px;
 }
 
 .turn-row__discard--riichi .tile-emoji {
