@@ -1,5 +1,6 @@
 import { TileGlyph } from './TileGlyph';
-import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, isTsumogiri } from '../tiles';
+import { TileMeld } from './TileMeld';
+import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, callDisplayTiles, isTsumogiri } from '../tiles';
 import type { Turn } from '../types';
 
 interface TurnRowProps {
@@ -21,7 +22,7 @@ export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
         >
           {CALL_TYPE_LABEL[turn.call.type]}
           {turn.call.from && <span className="turn-row__call-source">{CALL_SOURCE_LABEL_MAP[turn.call.from]}</span>}
-          <TileGlyph tile={turn.call.tiles[0]} className="tile-emoji" />
+          <TileMeld tiles={callDisplayTiles(turn.call)} />
         </span>
       ) : (
         <span className="turn-row__draw">

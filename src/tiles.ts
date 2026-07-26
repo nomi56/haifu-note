@@ -1,4 +1,4 @@
-import type { Suit, Tile, Turn } from './types';
+import type { Call, CallSource, Suit, Tile, Turn } from './types';
 
 interface TileInfo {
   tile: Tile;
@@ -126,4 +126,38 @@ export function isRinshan(turns: Turn[], index: number): boolean {
   const prev = turns[index - 1];
   if (!prev?.call) return false;
   return (prev.call.type === 'kan' || prev.call.type === 'ankan') && !turn.call;
+}
+
+/**
+ * チーで鳴いた牌から、成立しうる順子の候補を返す（例: 3を鳴いたら 123/234/345）。
+ * 各候補は鳴いた牌を実際の値（赤5等）のまま含み、他家/字牌は候補なし([])
+ */
+export function chiCandidates(calledTile: Tile): Tile[][] {
+  const info = getTileInfo(calledTile);
+  if (!info || info.suit === 'z') return [];
+  const suit = info.suit;
+  const n = info.isRed ? 5 : Number(calledTile[0]);
+  const starts = [n - 2, n - 1, n].filter((start) => start >= 1 && start + 2 <= 9);
+  return starts.map((start) =>
+    [start, start + 1, start + 2].map((num) => (num === n ? calledTile : `${num}${suit}`)),
+  );
+}
+
+/**
+ * 面子を構成する牌を、実際に並べる見た目の順（鳴いた牌がどちらから来たかで配置・回転が決まる）に変換する。
+ * チーは常に上家なので左端。ポン/カンは相手により左端/中央寄り/右端になる。暗カンは回転なし
+ */
+export function callDisplayTiles(call: Call): { tile: Tile; rotated: boolean }[] {
+  if (call.type === 'ankan' || !call.from) {
+    return call.tiles.map((tile) => ({ tile, rotated: false }));
+  }
+  const [called, ...others] = call.tiles;
+  const position: Record<CallSource, number> = {
+    kamicha: 0,
+    toimen: Math.floor(call.tiles.length / 2),
+    shimocha: call.tiles.length - 1,
+  };
+  const arranged = others.map((tile) => ({ tile, rotated: false }));
+  arranged.splice(position[call.from], 0, { tile: called, rotated: true });
+  return arranged;
 }

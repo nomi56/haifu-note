@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
-import { CALL_SOURCE_LABEL_MAP } from '../tiles';
+import { CALL_SOURCE_LABEL_MAP, chiCandidates } from '../tiles';
 import type { Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
@@ -58,6 +59,8 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
   const [karagiri, setKaragiri] = useState(false);
+  // チーの形(123/234/345等)。昇順3枚の並びで保持し、鳴いた牌はcallTileと同じ値で含まれる
+  const [chiMeld, setChiMeld] = useState<Tile[] | null>(null);
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
@@ -65,9 +68,11 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   // 後から暗カンする場合など)ため、両方を別々に入力する
   const requiresDraw = mode === 'tsumo' || mode === 'ankan';
   const requiresCallTile = mode !== 'tsumo';
+  const requiresChiMeld = mode === 'chi';
   const canAdd =
     (!requiresDraw || drawTile !== null) &&
     (!requiresCallTile || callTile !== null) &&
+    (!requiresChiMeld || chiMeld !== null) &&
     (!needsDiscard || discardTile !== null);
 
   function reset() {
@@ -76,6 +81,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     setDiscardTile(null);
     setRiichi(false);
     setKaragiri(false);
+    setChiMeld(null);
   }
 
   function changeMode(next: Mode) {
@@ -85,11 +91,21 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     reset();
   }
 
+  function changeChiCallTile(tile: Tile) {
+    setCallTile(tile);
+    setChiMeld(null);
+  }
+
   function buildCall(): Call | undefined {
     if (mode === 'tsumo' || !callTile) return undefined;
-    if (mode === 'chi') return { type: 'chi', from: 'kamicha', tiles: [callTile] };
-    if (mode === 'ankan') return { type: 'ankan', tiles: [callTile] };
-    return { type: mode, from: callSource, tiles: [callTile] };
+    if (mode === 'chi') {
+      if (!chiMeld) return undefined;
+      const others = chiMeld.filter((t) => t !== callTile);
+      return { type: 'chi', from: 'kamicha', tiles: [callTile, ...others] };
+    }
+    if (mode === 'ankan') return { type: 'ankan', tiles: [callTile, callTile, callTile, callTile] };
+    const count = mode === 'kan' ? 4 : 3;
+    return { type: mode, from: callSource, tiles: Array(count).fill(callTile) };
   }
 
   // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる
@@ -159,7 +175,38 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
               ))}
             </div>
           )}
-          <TileSelectField value={callTile} onChange={setCallTile} title={`${CALL_TILE_LABEL[mode]}を選ぶ`} />
+          <TileSelectField
+            value={callTile}
+            onChange={mode === 'chi' ? changeChiCallTile : setCallTile}
+            title={`${CALL_TILE_LABEL[mode]}を選ぶ`}
+          />
+        </div>
+      )}
+
+      {mode === 'chi' && callTile && (
+        <div className="turn-editor__section">
+          <h4>チーの形</h4>
+          {chiCandidates(callTile).length === 0 ? (
+            <p className="turn-editor__hint">この牌はチーできません</p>
+          ) : (
+            <div className="turn-editor__chi-candidates">
+              {chiCandidates(callTile).map((candidate) => {
+                const others = candidate.filter((t) => t !== callTile);
+                const display = [{ tile: callTile, rotated: true }, ...others.map((t) => ({ tile: t, rotated: false }))];
+                const selected = chiMeld?.join(',') === candidate.join(',');
+                return (
+                  <button
+                    key={candidate.join(',')}
+                    type="button"
+                    className={`turn-editor__chi-candidate${selected ? ' active' : ''}`}
+                    onClick={() => setChiMeld(candidate)}
+                  >
+                    <TileMeld tiles={display} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

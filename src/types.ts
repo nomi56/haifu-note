@@ -15,6 +15,10 @@ export interface Call {
   type: CallType;
   /** 暗カンは自分の手牌から行うため未設定 */
   from?: CallSource;
+  /**
+   * 面子を構成する牌すべて(チー/ポンは3枚、カンは4枚)。
+   * 暗カン以外はtiles[0]が鳴いた牌(相手から取った牌)を表す
+   */
   tiles: Tile[];
 }
 
