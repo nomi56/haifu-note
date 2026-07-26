@@ -49,11 +49,29 @@ export interface Turn {
   agari?: Agari;
 }
 
+// 場風・自風の風
+export type Wind = 'east' | 'south' | 'west' | 'north';
+
+export interface GameInfo {
+  /** 何試合目(半荘/東風戦などの回数) */
+  gameNumber: number;
+  /** 場風。東1局なら'east' */
+  roundWind: Wind;
+  /** 局数。東1局なら1 */
+  roundNumber: number;
+  /** 本場 */
+  honba: number;
+  /** 記録者自身の座席 */
+  seat: Wind;
+}
+
 export interface Kyoku {
   /** 局を一意に識別するID。将来の参照(他データとの紐付けなど)用に保持する */
   id: string;
   /** 局名。例: "東1局0本場" */
   name: string;
+  /** 場の情報(何試合目/場風/局数/本場/自分の座席)。未入力の場合は未設定 */
+  gameInfo?: GameInfo;
   /** 配牌（最初の摸打を記録する前の手牌） */
   haipai: Tile[];
   /** ドラ表示牌（カンドラ含め複数可） */

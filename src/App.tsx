@@ -4,7 +4,7 @@ import { KyokuEditor } from './components/KyokuEditor';
 import { SessionHistory } from './components/SessionHistory';
 import { UnsavedChangesDialog } from './components/UnsavedChangesDialog';
 import * as storage from './storage';
-import type { Kyoku, KifuSession, Tile, TileSize, Turn } from './types';
+import type { GameInfo, Kyoku, KifuSession, Tile, TileSize, Turn } from './types';
 import './App.css';
 
 // 局データの読み替え(既存局の読込/新規局への切り替え/保存・読込画面への移動)先。
@@ -13,10 +13,12 @@ type PendingSwitch = { type: 'kyoku'; kyoku: Kyoku } | { type: 'new' } | { type:
 
 const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', large: '38px' };
 
-function createEmptyKyoku(): Kyoku {
+// 新しい局を追加する際、gameInfoを渡すと直前の局の場の情報を初期値として引き継ぐ
+function createEmptyKyoku(gameInfo?: GameInfo): Kyoku {
   return {
     id: crypto.randomUUID(),
     name: '',
+    gameInfo,
     haipai: [],
     doraIndicators: [],
     turns: [],
@@ -109,6 +111,10 @@ function App() {
     setInProgress((prev) => ({ ...prev, haipai: prev.haipai.filter((_, i) => i !== index) }));
   }
 
+  function changeGameInfo(gameInfo: GameInfo) {
+    setInProgress((prev) => ({ ...prev, gameInfo }));
+  }
+
   function addDoraIndicator(tile: Tile) {
     setInProgress((prev) => ({ ...prev, doraIndicators: [...prev.doraIndicators, tile] }));
   }
@@ -139,7 +145,8 @@ function App() {
       setView('file');
       return;
     }
-    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku();
+    // 新規局は、直前まで編集していた局の場の情報(何試合目/場風/局数/本場/座席)を初期値として引き継ぐ
+    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku(inProgress.gameInfo);
     setInProgress(next);
     setLoadedKyokuSnapshot(JSON.stringify(next));
   }
@@ -259,6 +266,7 @@ function App() {
             isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}
             onChangeName={(name) => setInProgress((prev) => ({ ...prev, name }))}
             onChangeMemo={(resultMemo) => setInProgress((prev) => ({ ...prev, resultMemo }))}
+            onChangeGameInfo={changeGameInfo}
             onAddHaipaiTile={addHaipaiTile}
             onRemoveHaipaiTile={removeHaipaiTile}
             onAddDoraIndicator={addDoraIndicator}

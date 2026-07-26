@@ -1,17 +1,20 @@
 import { useState } from 'react';
+import { GameInfoEditor } from './GameInfoEditor';
 import { HaipaiEditor } from './HaipaiEditor';
 import { HaipaiRow } from './HaipaiRow';
 import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
 import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
-import type { Kyoku, Tile, TileSize, Turn } from '../types';
+import { DEFAULT_GAME_INFO, formatGameInfo } from '../gameInfo';
+import type { GameInfo, Kyoku, Tile, TileSize, Turn } from '../types';
 
 interface KyokuEditorProps {
   kyoku: Kyoku;
   isEditingExisting: boolean;
   onChangeName: (name: string) => void;
   onChangeMemo: (memo: string) => void;
+  onChangeGameInfo: (gameInfo: GameInfo) => void;
   onAddHaipaiTile: (tile: Tile) => void;
   onRemoveHaipaiTile: (index: number) => void;
   onAddDoraIndicator: (tile: Tile) => void;
@@ -33,6 +36,7 @@ export function KyokuEditor({
   isEditingExisting,
   onChangeName,
   onChangeMemo,
+  onChangeGameInfo,
   onAddHaipaiTile,
   onRemoveHaipaiTile,
   onAddDoraIndicator,
@@ -44,6 +48,12 @@ export function KyokuEditor({
 }: KyokuEditorProps) {
   const [haipaiEditorOpen, setHaipaiEditorOpen] = useState(false);
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
+  const [gameInfoEditorOpen, setGameInfoEditorOpen] = useState(false);
+
+  function openGameInfoEditor() {
+    if (!kyoku.gameInfo) onChangeGameInfo(DEFAULT_GAME_INFO);
+    setGameInfoEditorOpen(true);
+  }
 
   return (
     <section className="kyoku-editor">
@@ -61,6 +71,22 @@ export function KyokuEditor({
           onChange={(e) => onChangeName(e.target.value)}
         />
       </div>
+
+      <div className="kyoku-editor__game-info">
+        <span className="kyoku-editor__game-info-text">
+          {kyoku.gameInfo ? formatGameInfo(kyoku.gameInfo) : '場の情報未設定'}
+        </span>
+        <button type="button" className="kyoku-editor__game-info-edit" onClick={openGameInfoEditor}>
+          編集
+        </button>
+      </div>
+      {gameInfoEditorOpen && kyoku.gameInfo && (
+        <GameInfoEditor
+          value={kyoku.gameInfo}
+          onChange={onChangeGameInfo}
+          onClose={() => setGameInfoEditorOpen(false)}
+        />
+      )}
 
       <div className="kyoku-editor__dora">
         <span className="kyoku-editor__dora-label">ドラ表示牌</span>
