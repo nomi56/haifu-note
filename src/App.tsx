@@ -211,6 +211,12 @@ function App() {
     requestSwitch({ type: 'file' });
   }
 
+  // 画面遷移を伴わずに、編集中の局をその場で履歴へ保存する
+  function handleSaveNow() {
+    saveInProgressToSession();
+    setLoadedKyokuSnapshot(JSON.stringify(inProgress));
+  }
+
   return (
     <div className="app" style={{ '--tile-size': TILE_SIZE_PX[tileSize] } as CSSProperties}>
       <header className="app__header">
@@ -262,6 +268,15 @@ function App() {
             tileSize={tileSize}
             onChangeTileSize={setTileSize}
           />
+
+          <button
+            type="button"
+            className="app__save-now"
+            disabled={inProgress.turns.length === 0 || !hasKyokuEdits}
+            onClick={handleSaveNow}
+          >
+            現状を保存
+          </button>
         </main>
       ) : (
         <main className="app__main">

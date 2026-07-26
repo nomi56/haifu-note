@@ -1,4 +1,4 @@
-import type { Call, CallSource, Suit, Tile, Turn } from './types';
+import type { AgariSource, Call, CallSource, Suit, Tile, Turn } from './types';
 
 interface TileInfo {
   tile: Tile;
@@ -122,6 +122,13 @@ export const CALL_SOURCE_LABEL_MAP: Record<string, string> = {
   kamicha: '上家',
   toimen: '対面',
   shimocha: '下家',
+};
+
+export const AGARI_SOURCE_LABEL_MAP: Record<AgariSource, string> = {
+  tsumo: 'ツモ',
+  kamicha: 'ロン上家',
+  toimen: 'ロン対面',
+  shimocha: 'ロン下家',
 };
 
 /**

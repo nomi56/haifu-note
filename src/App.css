@@ -31,6 +31,15 @@
   flex: 1;
 }
 
+.app__save-now {
+  width: 100%;
+  margin-top: 16px;
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* Tile picker */
 .tile-picker {
   display: flex;
@@ -270,6 +279,15 @@
   margin-right: 4px;
 }
 
+.turn-row__agari-badge {
+  font-size: 11px;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 4px;
+}
+
 .turn-row__discard--riichi .tile-emoji {
   display: inline-block;
   transform: rotate(90deg);
@@ -314,15 +332,28 @@
 
 .turn-editor__mode {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 8px;
+}
+
+.turn-editor__mode button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 4px;
+  white-space: nowrap;
 }
 
 .turn-editor__call-controls {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 6px;
+}
+
+.turn-editor__call-controls button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 4px;
+  white-space: nowrap;
 }
 
 .turn-editor__chi-candidates {
