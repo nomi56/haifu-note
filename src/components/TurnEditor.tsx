@@ -30,7 +30,6 @@ const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   chi: 'チーした牌',
   pon: 'ポンした牌',
   kan: 'カンした牌',
-  ankan: 'ツモった牌（暗カンする牌）',
 };
 
 // カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない
@@ -61,7 +60,14 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
-  const canAdd = (mode === 'tsumo' ? drawTile !== null : callTile !== null) && (!needsDiscard || discardTile !== null);
+  // 暗カンはツモった牌とカンする牌が一致するとは限らない(手牌に揃っていた組を
+  // 後から暗カンする場合など)ため、両方を別々に入力する
+  const requiresDraw = mode === 'tsumo' || mode === 'ankan';
+  const requiresCallTile = mode !== 'tsumo';
+  const canAdd =
+    (!requiresDraw || drawTile !== null) &&
+    (!requiresCallTile || callTile !== null) &&
+    (!needsDiscard || discardTile !== null);
 
   function reset() {
     setDrawTile(null);
@@ -87,7 +93,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   function handleAdd() {
     if (!canAdd) return;
     const turn: Turn = {
-      draw: mode === 'tsumo' ? (drawTile ?? undefined) : undefined,
+      draw: requiresDraw ? (drawTile ?? undefined) : undefined,
       call: buildCall(),
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
       riichi: allowsRiichi && riichi,
@@ -108,12 +114,27 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
         ))}
       </div>
 
-      {mode === 'tsumo' ? (
+      {mode === 'tsumo' && (
         <div className="turn-editor__section">
           <h4>ツモった牌</h4>
           <TileSelectField value={drawTile} onChange={setDrawTile} title="ツモった牌を選ぶ" />
         </div>
-      ) : (
+      )}
+
+      {mode === 'ankan' && (
+        <>
+          <div className="turn-editor__section">
+            <h4>ツモった牌</h4>
+            <TileSelectField value={drawTile} onChange={setDrawTile} title="ツモった牌を選ぶ" />
+          </div>
+          <div className="turn-editor__section">
+            <h4>暗カンする牌</h4>
+            <TileSelectField value={callTile} onChange={setCallTile} title="暗カンする牌を選ぶ" />
+          </div>
+        </>
+      )}
+
+      {(mode === 'chi' || mode === 'pon' || mode === 'kan') && (
         <div className="turn-editor__section">
           <h4>{CALL_TILE_LABEL[mode]}</h4>
           {sourceOptions && sourceOptions.length > 1 && (
