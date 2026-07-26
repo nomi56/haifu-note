@@ -71,6 +71,11 @@
   align-items: center;
   justify-content: center;
   color: var(--text-h);
+  /* 筒子/索子など牌の種類によってフォント内部の描画サイズが異なり、
+     指定したfont-sizeより実際の描画が大きくなってはみ出すことがあるため、
+     高さをfont-size基準(1em)で固定してクリップする */
+  height: 1em;
+  overflow: hidden;
 }
 
 .tile-glyph--p {
