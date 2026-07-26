@@ -312,6 +312,10 @@
   margin-top: 10px;
 }
 
+.turn-editor__footer--end {
+  justify-content: flex-end;
+}
+
 .turn-editor__hint {
   font-size: 12px;
   color: var(--text);

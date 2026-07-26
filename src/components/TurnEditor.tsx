@@ -118,13 +118,16 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
           <h4>{CALL_TILE_LABEL[mode]}</h4>
           {sourceOptions && sourceOptions.length > 1 && (
             <div className="turn-editor__call-controls">
-              <select value={callSource} onChange={(e) => setCallSource(e.target.value as CallSource)}>
-                {sourceOptions.map((s) => (
-                  <option key={s} value={s}>
-                    {CALL_SOURCE_LABEL_MAP[s]}
-                  </option>
-                ))}
-              </select>
+              {sourceOptions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={callSource === s ? 'active' : ''}
+                  onClick={() => setCallSource(s)}
+                >
+                  {CALL_SOURCE_LABEL_MAP[s]}
+                </button>
+              ))}
             </div>
           )}
           <TileSelectField value={callTile} onChange={setCallTile} title={`${CALL_TILE_LABEL[mode]}を選ぶ`} />
@@ -138,14 +141,12 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
             <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
           </div>
 
-          <div className="turn-editor__footer">
-            {allowsRiichi ? (
+          <div className={`turn-editor__footer${allowsRiichi ? '' : ' turn-editor__footer--end'}`}>
+            {allowsRiichi && (
               <label className="turn-editor__riichi">
                 <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
                 リーチ宣言
               </label>
-            ) : (
-              <p className="turn-editor__hint">鳴いた直後はリーチできません</p>
             )}
             <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
               1手追加
@@ -154,7 +155,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
         </>
       ) : (
         <div className="turn-editor__footer turn-editor__footer--no-riichi">
-          <p className="turn-editor__hint">続けてリンシャンツモを記録してください（打牌・リーチはありません）</p>
+          <p className="turn-editor__hint">続けてリンシャンツモを記録してください</p>
           <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
             1手追加
           </button>
