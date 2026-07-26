@@ -41,6 +41,7 @@
 .tile-picker__row {
   display: flex;
   gap: 3px;
+  container-type: inline-size;
 }
 
 .tile-btn {
@@ -52,11 +53,12 @@
   justify-content: center;
   line-height: 1;
   padding: 2px 1px;
-  container-type: inline-size;
 }
 
 .tile-btn .tile-glyph {
-  font-size: 85cqw;
+  /* 行(.tile-picker__row)の幅を基準にすることで、字牌行(7列)と数牌行(10列)で
+     列数が違ってもボタン単体の幅に引っ張られず牌のサイズを揃える */
+  font-size: 8.5cqw;
 }
 
 .tile-btn--selected {
