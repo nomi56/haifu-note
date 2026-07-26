@@ -271,6 +271,7 @@ function App() {
 
       {pendingSwitch && (
         <UnsavedChangesDialog
+          kind={pendingSwitch.type}
           onSave={handleSwitchSave}
           onDiscard={handleSwitchDiscard}
           onCancel={handleSwitchCancel}
