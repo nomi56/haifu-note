@@ -253,6 +253,11 @@
   gap: 4px;
 }
 
+.turn-row__discard {
+  display: inline-flex;
+  align-items: center;
+}
+
 .turn-row__rinshan-badge {
   font-size: 11px;
   color: var(--accent);
