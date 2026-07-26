@@ -10,7 +10,6 @@ const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', 
 
 function createEmptyKyoku(): Kyoku {
   return {
-    id: crypto.randomUUID(),
     name: '',
     doraIndicators: [],
     turns: [],
@@ -23,7 +22,6 @@ function createEmptySession(): KifuSession {
   const now = new Date().toISOString();
   return {
     version: 1,
-    id: crypto.randomUUID(),
     title: '',
     createdAt: now,
     updatedAt: now,

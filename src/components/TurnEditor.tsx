@@ -32,7 +32,6 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     const call: Call | undefined =
       mode === 'call' && callTile ? { type: callType, from: callSource, tiles: [callTile] } : undefined;
     const turn: Turn = {
-      id: crypto.randomUUID(),
       draw: mode === 'draw' ? (drawTile ?? undefined) : undefined,
       call,
       discard: discardTile,

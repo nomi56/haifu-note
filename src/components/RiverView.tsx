@@ -13,7 +13,7 @@ export function RiverView({ turns, emptyText = 'まだ牌譜がありません' 
   return (
     <div className="river-view">
       {turns.map((turn, i) => (
-        <TurnRow key={turn.id} turn={turn} index={i} />
+        <TurnRow key={i} turn={turn} index={i} />
       ))}
     </div>
   );

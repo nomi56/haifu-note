@@ -18,7 +18,6 @@ export interface Call {
 }
 
 export interface Turn {
-  id: string;
   /** 自摸で引いた牌。鳴きの場合は未設定 */
   draw?: Tile;
   /** チー/ポン/カンで鳴いた場合の情報。自摸の場合は未設定 */
@@ -28,7 +27,6 @@ export interface Turn {
 }
 
 export interface Kyoku {
-  id: string;
   /** 局名。例: "東1局0本場" */
   name: string;
   /** ドラ表示牌（カンドラ含め複数可） */
@@ -40,7 +38,6 @@ export interface Kyoku {
 
 export interface KifuSession {
   version: 1;
-  id: string;
   title: string;
   createdAt: string;
   updatedAt: string;
