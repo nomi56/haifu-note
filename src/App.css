@@ -71,11 +71,12 @@
   align-items: center;
   justify-content: center;
   color: var(--text-h);
-  /* 筒子/索子など牌の種類によってフォント内部の描画サイズが異なり、
-     指定したfont-sizeより実際の描画が大きくなってはみ出すことがあるため、
-     高さをfont-size基準(1em)で固定してクリップする */
+  /* 筒子/索子など牌の種類によってフォント内部の描画サイズが異なり、指定した
+     font-sizeより実際の描画が大きくなることがあるため、レイアウト計算上の
+     高さはfont-size基準(1em)に揃えて隣接要素とのズレを防ぐ。
+     ただしoverflow:hiddenで切り取ると牌の枠線ごと欠けて見えるため、
+     はみ出し分は.turn-row/.river-viewの余白で吸収し、クリップはしない */
   height: 1em;
-  overflow: hidden;
 }
 
 .tile-glyph--p {
