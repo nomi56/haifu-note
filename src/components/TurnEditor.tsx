@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
-import { CALL_SOURCE_LABEL_MAP, chiCandidates } from '../tiles';
+import { CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
 import type { Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
@@ -107,10 +107,10 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       const others = chiMeld.filter((t) => t !== callTile);
       return { type: 'chi', from: 'kamicha', tiles: [callTile, ...others] };
     }
-    if (mode === 'ankan') return { type: 'ankan', tiles: [callTile, callTile, callTile, callTile] };
-    if (mode === 'kan' && callSource === 'kakan') return { type: 'kakan', tiles: Array(4).fill(callTile) };
+    if (mode === 'ankan') return { type: 'ankan', tiles: fillMeldTiles(callTile, 4) };
+    if (mode === 'kan' && callSource === 'kakan') return { type: 'kakan', tiles: fillMeldTiles(callTile, 4) };
     const count = mode === 'kan' ? 4 : 3;
-    return { type: mode, from: callSource as CallSource, tiles: Array(count).fill(callTile) };
+    return { type: mode, from: callSource as CallSource, tiles: fillMeldTiles(callTile, count) };
   }
 
   // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる

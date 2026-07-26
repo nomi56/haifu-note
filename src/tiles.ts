@@ -73,6 +73,19 @@ export function isRedFive(tile: Tile): boolean {
   return getTileInfo(tile)?.isRed ?? false;
 }
 
+/** 赤5をゲーム内に1枚しかない通常の5に変換する（それ以外の牌はそのまま） */
+export function normalFive(tile: Tile): Tile {
+  return isRedFive(tile) ? `5${tile[1]}` : tile;
+}
+
+/**
+ * ポン/カン/暗カン用に、鳴いた(またはカンする)牌1枚からN枚の面子を作る。
+ * 赤5はゲーム内に1枚しかないため、鳴いた牌が赤5でも残りは通常の5にする
+ */
+export function fillMeldTiles(tile: Tile, count: number): Tile[] {
+  return [tile, ...Array(count - 1).fill(normalFive(tile))];
+}
+
 export function tileSuit(tile: Tile): Suit | undefined {
   return getTileInfo(tile)?.suit;
 }
