@@ -33,11 +33,20 @@ const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   ankan: 'ツモった牌（暗カンする牌）',
 };
 
-// カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌・リーチは発生しない
+// カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない
 const NEEDS_DISCARD: Record<Mode, boolean> = {
   tsumo: true,
   chi: true,
   pon: true,
+  kan: false,
+  ankan: false,
+};
+
+// チー/ポンで喰い替えると門前が崩れるため、鳴いた直後の打牌ではリーチ宣言できない
+const ALLOWS_RIICHI: Record<Mode, boolean> = {
+  tsumo: true,
+  chi: false,
+  pon: false,
   kan: false,
   ankan: false,
 };
@@ -51,6 +60,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [riichi, setRiichi] = useState(false);
 
   const needsDiscard = NEEDS_DISCARD[mode];
+  const allowsRiichi = ALLOWS_RIICHI[mode];
   const canAdd = (mode === 'tsumo' ? drawTile !== null : callTile !== null) && (!needsDiscard || discardTile !== null);
 
   function reset() {
@@ -80,7 +90,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       draw: mode === 'tsumo' ? (drawTile ?? undefined) : undefined,
       call: buildCall(),
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
-      riichi: needsDiscard && riichi,
+      riichi: allowsRiichi && riichi,
     };
     onAdd(turn);
     reset();
@@ -129,10 +139,14 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
           </div>
 
           <div className="turn-editor__footer">
-            <label className="turn-editor__riichi">
-              <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
-              リーチ宣言
-            </label>
+            {allowsRiichi ? (
+              <label className="turn-editor__riichi">
+                <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
+                リーチ宣言
+              </label>
+            ) : (
+              <p className="turn-editor__hint">鳴いた直後はリーチできません</p>
+            )}
             <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
               1手追加
             </button>
