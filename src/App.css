@@ -71,6 +71,12 @@
   align-items: center;
   justify-content: center;
   color: var(--text-h);
+  /* 筒子/索子など牌の種類によってフォント内部の描画サイズが異なり、指定した
+     font-sizeより実際の描画が大きくなることがあるため、レイアウト計算上の
+     高さはfont-size基準(1em)に揃えて隣接要素とのズレを防ぐ。
+     ただしoverflow:hiddenで切り取ると牌の枠線ごと欠けて見えるため、
+     はみ出し分は.turn-row/.river-viewの余白で吸収し、クリップはしない */
+  height: 1em;
 }
 
 .tile-glyph--p {
@@ -175,7 +181,7 @@
 .river-view {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .river-view__empty {
@@ -187,8 +193,8 @@
 .turn-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 6px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
   flex-wrap: wrap;
@@ -248,9 +254,11 @@
 }
 
 .turn-row__draw {
-  display: flex;
+  /* バッジ+牌グリフのように高さの異なるinline要素が混在すると、
+     ブラウザによってinline要素の基準線(baseline)計算が異なりズレて見えることがあるため、
+     ブラウザ依存のbaseline計算に頼らずflexで明示的に中央揃えする */
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
 }
 
 .turn-row__rinshan-badge {
@@ -259,6 +267,7 @@
   border: 1px solid var(--accent-border);
   border-radius: 4px;
   padding: 1px 5px;
+  margin-right: 4px;
 }
 
 .turn-row__discard--riichi .tile-emoji {
