@@ -3,6 +3,9 @@ export type Tile = string;
 
 export type Suit = 'm' | 'p' | 's' | 'z';
 
+// 牌譜の記録行に表示する牌のサイズ
+export type TileSize = 'small' | 'medium' | 'large';
+
 export type CallType = 'chi' | 'pon' | 'kan';
 
 // 鳴いた牌がどの相手から出たか

@@ -3,7 +3,7 @@ import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
 import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
-import type { Kyoku, Tile, Turn } from '../types';
+import type { Kyoku, Tile, TileSize, Turn } from '../types';
 
 interface KyokuEditorProps {
   kyoku: Kyoku;
@@ -14,7 +14,15 @@ interface KyokuEditorProps {
   onAddTurn: (turn: Turn) => void;
   onRemoveLastTurn: () => void;
   onConfirm: () => void;
+  tileSize: TileSize;
+  onChangeTileSize: (size: TileSize) => void;
 }
+
+const TILE_SIZE_OPTIONS: { value: TileSize; label: string }[] = [
+  { value: 'small', label: '小' },
+  { value: 'medium', label: '中' },
+  { value: 'large', label: '大' },
+];
 
 export function KyokuEditor({
   kyoku,
@@ -25,6 +33,8 @@ export function KyokuEditor({
   onAddTurn,
   onRemoveLastTurn,
   onConfirm,
+  tileSize,
+  onChangeTileSize,
 }: KyokuEditorProps) {
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
 
@@ -55,7 +65,22 @@ export function KyokuEditor({
         <TileSelectModal title="ドラ表示牌を選ぶ" onSelect={onAddDoraIndicator} onClose={() => setDoraPickerOpen(false)} />
       )}
 
-      <h3>牌譜</h3>
+      <div className="kyoku-editor__river-header">
+        <h3>牌譜</h3>
+        <div className="tile-size-picker">
+          <span className="tile-size-picker__label">牌の表示サイズ</span>
+          {TILE_SIZE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={tileSize === opt.value ? 'active' : ''}
+              onClick={() => onChangeTileSize(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <RiverView turns={kyoku.turns} />
       {kyoku.turns.length > 0 && (
         <button type="button" className="kyoku-editor__undo" onClick={onRemoveLastTurn}>
