@@ -6,14 +6,15 @@ export type Suit = 'm' | 'p' | 's' | 'z';
 // 牌譜の記録行に表示する牌のサイズ
 export type TileSize = 'small' | 'medium' | 'large';
 
-export type CallType = 'chi' | 'pon' | 'kan';
+export type CallType = 'chi' | 'pon' | 'kan' | 'ankan';
 
 // 鳴いた牌がどの相手から出たか
 export type CallSource = 'kamicha' | 'toimen' | 'shimocha';
 
 export interface Call {
   type: CallType;
-  from: CallSource;
+  /** 暗カンは自分の手牌から行うため未設定 */
+  from?: CallSource;
   tiles: Tile[];
 }
 

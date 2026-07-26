@@ -280,6 +280,7 @@
 
 .turn-editor__mode {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
 }

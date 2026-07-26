@@ -1,24 +1,47 @@
 import { useState } from 'react';
 import { TileSelectField } from './TileSelectField';
-import { CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL } from '../tiles';
-import type { Call, CallSource, CallType, Tile, Turn } from '../types';
+import { CALL_SOURCE_LABEL_MAP } from '../tiles';
+import type { Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
   onAdd: (turn: Turn) => void;
 }
 
-type Mode = 'draw' | 'call';
+type Mode = 'tsumo' | 'chi' | 'pon' | 'kan' | 'ankan';
+
+const MODE_LABEL: Record<Mode, string> = {
+  tsumo: '自摸',
+  chi: 'チー',
+  pon: 'ポン',
+  kan: 'カン',
+  ankan: '暗カン',
+};
+
+const MODES: Mode[] = ['tsumo', 'chi', 'pon', 'kan', 'ankan'];
+
+// どの相手から鳴けるか。暗カンは自分の手牌からなので選択肢なし
+const CALL_SOURCE_OPTIONS: Partial<Record<Mode, CallSource[]>> = {
+  chi: ['kamicha'],
+  pon: ['kamicha', 'toimen', 'shimocha'],
+  kan: ['kamicha', 'toimen', 'shimocha'],
+};
+
+const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
+  chi: 'チーした牌',
+  pon: 'ポンした牌',
+  kan: 'カンした牌',
+  ankan: '暗カンする牌',
+};
 
 export function TurnEditor({ onAdd }: TurnEditorProps) {
-  const [mode, setMode] = useState<Mode>('draw');
+  const [mode, setMode] = useState<Mode>('tsumo');
   const [drawTile, setDrawTile] = useState<Tile | null>(null);
-  const [callType, setCallType] = useState<CallType>('chi');
   const [callSource, setCallSource] = useState<CallSource>('kamicha');
   const [callTile, setCallTile] = useState<Tile | null>(null);
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
 
-  const canAdd = mode === 'draw' ? drawTile !== null && discardTile !== null : callTile !== null && discardTile !== null;
+  const canAdd = (mode === 'tsumo' ? drawTile !== null : callTile !== null) && discardTile !== null;
 
   function reset() {
     setDrawTile(null);
@@ -27,13 +50,25 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     setRiichi(false);
   }
 
+  function changeMode(next: Mode) {
+    setMode(next);
+    const sources = CALL_SOURCE_OPTIONS[next];
+    if (sources) setCallSource(sources[0]);
+    reset();
+  }
+
+  function buildCall(): Call | undefined {
+    if (mode === 'tsumo' || !callTile) return undefined;
+    if (mode === 'chi') return { type: 'chi', from: 'kamicha', tiles: [callTile] };
+    if (mode === 'ankan') return { type: 'ankan', tiles: [callTile] };
+    return { type: mode, from: callSource, tiles: [callTile] };
+  }
+
   function handleAdd() {
     if (!canAdd || !discardTile) return;
-    const call: Call | undefined =
-      mode === 'call' && callTile ? { type: callType, from: callSource, tiles: [callTile] } : undefined;
     const turn: Turn = {
-      draw: mode === 'draw' ? (drawTile ?? undefined) : undefined,
-      call,
+      draw: mode === 'tsumo' ? (drawTile ?? undefined) : undefined,
+      call: buildCall(),
       discard: discardTile,
       riichi,
     };
@@ -41,42 +76,38 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     reset();
   }
 
+  const sourceOptions = CALL_SOURCE_OPTIONS[mode];
+
   return (
     <div className="turn-editor">
       <div className="turn-editor__mode">
-        <button type="button" className={mode === 'draw' ? 'active' : ''} onClick={() => setMode('draw')}>
-          自摸
-        </button>
-        <button type="button" className={mode === 'call' ? 'active' : ''} onClick={() => setMode('call')}>
-          鳴き
-        </button>
+        {MODES.map((m) => (
+          <button key={m} type="button" className={mode === m ? 'active' : ''} onClick={() => changeMode(m)}>
+            {MODE_LABEL[m]}
+          </button>
+        ))}
       </div>
 
-      {mode === 'draw' ? (
+      {mode === 'tsumo' ? (
         <div className="turn-editor__section">
           <h4>ツモった牌</h4>
           <TileSelectField value={drawTile} onChange={setDrawTile} title="ツモった牌を選ぶ" />
         </div>
       ) : (
         <div className="turn-editor__section">
-          <h4>鳴いた牌</h4>
-          <div className="turn-editor__call-controls">
-            <select value={callType} onChange={(e) => setCallType(e.target.value as CallType)}>
-              {(Object.keys(CALL_TYPE_LABEL) as CallType[]).map((t) => (
-                <option key={t} value={t}>
-                  {CALL_TYPE_LABEL[t]}
-                </option>
-              ))}
-            </select>
-            <select value={callSource} onChange={(e) => setCallSource(e.target.value as CallSource)}>
-              {(Object.keys(CALL_SOURCE_LABEL_MAP) as CallSource[]).map((s) => (
-                <option key={s} value={s}>
-                  {CALL_SOURCE_LABEL_MAP[s]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <TileSelectField value={callTile} onChange={setCallTile} title="鳴いた牌を選ぶ" />
+          <h4>{CALL_TILE_LABEL[mode]}</h4>
+          {sourceOptions && sourceOptions.length > 1 && (
+            <div className="turn-editor__call-controls">
+              <select value={callSource} onChange={(e) => setCallSource(e.target.value as CallSource)}>
+                {sourceOptions.map((s) => (
+                  <option key={s} value={s}>
+                    {CALL_SOURCE_LABEL_MAP[s]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <TileSelectField value={callTile} onChange={setCallTile} title={`${CALL_TILE_LABEL[mode]}を選ぶ`} />
         </div>
       )}
 

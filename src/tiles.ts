@@ -101,6 +101,7 @@ export const CALL_TYPE_LABEL: Record<string, string> = {
   chi: 'チー',
   pon: 'ポン',
   kan: 'カン',
+  ankan: '暗カン',
 };
 
 export const CALL_SOURCE_LABEL_MAP: Record<string, string> = {

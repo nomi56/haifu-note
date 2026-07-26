@@ -14,9 +14,12 @@ export function TurnRow({ turn, index }: TurnRowProps) {
     <div className="turn-row">
       <span className="turn-row__index">{index + 1}</span>
       {turn.call ? (
-        <span className="turn-row__call" title={`${CALL_TYPE_LABEL[turn.call.type]} ${CALL_SOURCE_LABEL_MAP[turn.call.from]}から`}>
+        <span
+          className="turn-row__call"
+          title={`${CALL_TYPE_LABEL[turn.call.type]}${turn.call.from ? ` ${CALL_SOURCE_LABEL_MAP[turn.call.from]}から` : ''}`}
+        >
           {CALL_TYPE_LABEL[turn.call.type]}
-          <span className="turn-row__call-source">{CALL_SOURCE_LABEL_MAP[turn.call.from]}</span>
+          {turn.call.from && <span className="turn-row__call-source">{CALL_SOURCE_LABEL_MAP[turn.call.from]}</span>}
           <TileGlyph tile={turn.call.tiles[0]} className="tile-emoji" />
         </span>
       ) : (
