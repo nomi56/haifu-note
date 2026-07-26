@@ -29,8 +29,8 @@ export function HaipaiRow({ haipai, onTapTile }: HaipaiRowProps) {
         ),
       )}
       {Array.from({ length: emptyCount }).map((_, i) => (
-        <span key={`empty-${i}`} className="haipai-tile haipai-tile--empty">
-          ？
+        <span key={`empty-${i}`} className="haipai-tile">
+          <span className="haipai-tile__empty-mark">？</span>
         </span>
       ))}
     </div>
