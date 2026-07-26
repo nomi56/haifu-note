@@ -322,7 +322,14 @@
   margin: 0;
 }
 
-.turn-editor__riichi {
+.turn-editor__footer-options {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.turn-editor__riichi,
+.turn-editor__karagiri {
   display: flex;
   align-items: center;
   gap: 6px;

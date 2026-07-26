@@ -110,9 +110,9 @@ export const CALL_SOURCE_LABEL_MAP: Record<string, string> = {
   shimocha: '下家',
 };
 
-/** 打牌が自摸切りかどうかを判定する（保存はせず都度算出する） */
+/** 打牌が自摸切りかどうかを判定する（空切りは除く。保存はせず都度算出する） */
 export function isTsumogiri(turn: Turn): boolean {
-  if (turn.call) return false;
+  if (turn.call || turn.karagiri) return false;
   return turn.draw !== undefined && turn.draw === turn.discard;
 }
 

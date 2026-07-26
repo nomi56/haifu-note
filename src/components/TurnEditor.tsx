@@ -57,6 +57,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [callTile, setCallTile] = useState<Tile | null>(null);
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
+  const [karagiri, setKaragiri] = useState(false);
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
@@ -74,6 +75,7 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     setCallTile(null);
     setDiscardTile(null);
     setRiichi(false);
+    setKaragiri(false);
   }
 
   function changeMode(next: Mode) {
@@ -90,6 +92,9 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
     return { type: mode, from: callSource, tiles: [callTile] };
   }
 
+  // ツモった牌と同じ種類を切る場合のみ、ツモ切りに見せかけた空切りを指定できる
+  const showKaragiriOption = mode === 'tsumo' && drawTile !== null && discardTile !== null && drawTile === discardTile;
+
   function handleAdd() {
     if (!canAdd) return;
     const turn: Turn = {
@@ -97,9 +102,12 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       call: buildCall(),
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
       riichi: allowsRiichi && riichi,
+      karagiri: showKaragiriOption && karagiri,
     };
     onAdd(turn);
     reset();
+    // 次の手は多くの場合ツモから始まるため、入力後は自動でツモ入力に戻す
+    setMode('tsumo');
   }
 
   const sourceOptions = CALL_SOURCE_OPTIONS[mode];
@@ -162,13 +170,23 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
             <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
           </div>
 
-          <div className={`turn-editor__footer${allowsRiichi ? '' : ' turn-editor__footer--end'}`}>
-            {allowsRiichi && (
-              <label className="turn-editor__riichi">
-                <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
-                リーチ宣言
-              </label>
-            )}
+          <div
+            className={`turn-editor__footer${allowsRiichi || showKaragiriOption ? '' : ' turn-editor__footer--end'}`}
+          >
+            <div className="turn-editor__footer-options">
+              {allowsRiichi && (
+                <label className="turn-editor__riichi">
+                  <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
+                  リーチ宣言
+                </label>
+              )}
+              {showKaragiriOption && (
+                <label className="turn-editor__karagiri">
+                  <input type="checkbox" checked={karagiri} onChange={(e) => setKaragiri(e.target.checked)} />
+                  空切り
+                </label>
+              )}
+            </div>
             <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
               1手追加
             </button>

@@ -26,6 +26,11 @@ export interface Turn {
   /** カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない */
   discard?: Tile;
   riichi: boolean;
+  /**
+   * 空切り: ツモった牌と同じ種類の牌を、ツモ切りに見せかけて手牌側から切ったこと。
+   * draw === discard の場合のみ意味を持つ
+   */
+  karagiri: boolean;
 }
 
 export interface Kyoku {

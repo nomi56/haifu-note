@@ -36,7 +36,7 @@ export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
             <TileGlyph tile={turn.discard} className="tile-emoji" />
           </span>
           <span className={`turn-row__label${tsumogiri ? ' turn-row__label--tsumogiri' : ''}`}>
-            {tsumogiri ? 'ツモ切り' : '手出し'}
+            {turn.karagiri ? '空切り' : tsumogiri ? 'ツモ切り' : '手出し'}
           </span>
           {turn.riichi && <span className="turn-row__riichi-badge">リーチ</span>}
         </>
