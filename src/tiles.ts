@@ -77,6 +77,20 @@ export function tileSuit(tile: Tile): Suit | undefined {
   return getTileInfo(tile)?.suit;
 }
 
+const SUIT_ORDER: Record<Suit, number> = { m: 0, p: 1, s: 2, z: 3 };
+
+/** 配牌などを手牌順（スート→数字、赤5は5の直後）に並べるための比較キー */
+export function tileSortKey(tile: Tile): number {
+  const info = getTileInfo(tile);
+  if (!info) return Number.MAX_SAFE_INTEGER;
+  const number = info.isRed ? 5.5 : Number(tile[0]);
+  return SUIT_ORDER[info.suit] * 100 + number;
+}
+
+export function sortTiles(tiles: Tile[]): Tile[] {
+  return [...tiles].sort((a, b) => tileSortKey(a) - tileSortKey(b));
+}
+
 const TILE_PATTERN = /^(?:[1-9][mps]|0[mps]|[1-7]z)$/;
 
 export function isValidTile(tile: string): boolean {

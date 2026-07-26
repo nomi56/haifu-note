@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HaipaiEditor } from './HaipaiEditor';
+import { HaipaiRow } from './HaipaiRow';
 import { RiverView } from './RiverView';
 import { TileGlyph } from './TileGlyph';
 import { TileSelectModal } from './TileSelectModal';
@@ -9,6 +11,8 @@ interface KyokuEditorProps {
   kyoku: Kyoku;
   onChangeName: (name: string) => void;
   onChangeMemo: (memo: string) => void;
+  onAddHaipaiTile: (tile: Tile) => void;
+  onRemoveHaipaiTile: (index: number) => void;
   onAddDoraIndicator: (tile: Tile) => void;
   onRemoveDoraIndicator: (index: number) => void;
   onAddTurn: (turn: Turn) => void;
@@ -28,6 +32,8 @@ export function KyokuEditor({
   kyoku,
   onChangeName,
   onChangeMemo,
+  onAddHaipaiTile,
+  onRemoveHaipaiTile,
   onAddDoraIndicator,
   onRemoveDoraIndicator,
   onAddTurn,
@@ -36,6 +42,7 @@ export function KyokuEditor({
   tileSize,
   onChangeTileSize,
 }: KyokuEditorProps) {
+  const [haipaiEditorOpen, setHaipaiEditorOpen] = useState(false);
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
 
   return (
@@ -53,16 +60,35 @@ export function KyokuEditor({
       <div className="kyoku-editor__dora">
         <span className="kyoku-editor__dora-label">ドラ表示牌</span>
         {kyoku.doraIndicators.map((tile, i) => (
-          <button key={`${tile}-${i}`} type="button" className="dora-chip" onClick={() => onRemoveDoraIndicator(i)}>
-            <TileGlyph tile={tile} /> ×
+          <button key={`${tile}-${i}`} type="button" className="tile-chip" onClick={() => onRemoveDoraIndicator(i)}>
+            <TileGlyph tile={tile} />
+            <span className="tile-chip__remove" aria-hidden="true">
+              ×
+            </span>
           </button>
         ))}
-        <button type="button" className="dora-add" onClick={() => setDoraPickerOpen((v) => !v)}>
+        <button type="button" className="tile-chip-add" onClick={() => setDoraPickerOpen((v) => !v)}>
           ＋
         </button>
       </div>
       {doraPickerOpen && (
         <TileSelectModal title="ドラ表示牌を選ぶ" onSelect={onAddDoraIndicator} onClose={() => setDoraPickerOpen(false)} />
+      )}
+
+      <div className="kyoku-editor__haipai-header">
+        <span className="kyoku-editor__haipai-label">配牌</span>
+        <button type="button" className="haipai-edit-open" onClick={() => setHaipaiEditorOpen(true)}>
+          編集
+        </button>
+      </div>
+      <HaipaiRow haipai={kyoku.haipai} />
+      {haipaiEditorOpen && (
+        <HaipaiEditor
+          haipai={kyoku.haipai}
+          onAdd={onAddHaipaiTile}
+          onRemove={onRemoveHaipaiTile}
+          onClose={() => setHaipaiEditorOpen(false)}
+        />
       )}
 
       <div className="kyoku-editor__river-header">
