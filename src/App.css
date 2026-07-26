@@ -50,9 +50,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(20px, 7vw, 30px);
   line-height: 1;
   padding: 2px 1px;
+  container-type: inline-size;
+}
+
+.tile-btn .tile-glyph {
+  font-size: 85cqw;
 }
 
 .tile-btn--selected {
