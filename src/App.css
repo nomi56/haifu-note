@@ -138,6 +138,39 @@
   padding: 2px 8px;
 }
 
+.confirm-dialog-backdrop {
+  align-items: center;
+  padding: 16px;
+}
+
+.confirm-dialog {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.confirm-dialog__message {
+  color: var(--text-h);
+  margin: 0 0 14px;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confirm-dialog__save {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* River / turn display */
 .river-view {
   display: flex;
@@ -279,6 +312,34 @@
 
 .kyoku-editor__name {
   width: 100%;
+}
+
+.kyoku-editor__editing-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 10px;
+}
+
+.kyoku-editor__start-new {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.history-item--active {
+  border-color: var(--accent-border);
+}
+
+.history-item--active .history-item__header {
+  background: var(--accent-bg);
 }
 
 .kyoku-editor__haipai-header {
@@ -427,31 +488,6 @@
 .history-item__count {
   font-size: 12px;
   color: var(--text);
-}
-
-.history-item__body {
-  padding: 10px;
-}
-
-.history-item__haipai {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-
-.history-item__haipai-label {
-  font-size: 12px;
-  color: var(--text);
-  margin-right: 4px;
-}
-
-.history-item__memo {
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--text);
-  white-space: pre-wrap;
 }
 
 /* File panel */
