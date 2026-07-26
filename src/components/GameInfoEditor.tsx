@@ -1,4 +1,4 @@
-import { WIND_LABEL, WIND_OPTIONS, advanceToNextKyoku, applyRenchan } from '../gameInfo';
+import { WIND_LABEL, WIND_OPTIONS, advanceToNextKyoku, retreatToPreviousKyoku } from '../gameInfo';
 import type { GameInfo, Wind } from '../types';
 
 interface GameInfoEditorProps {
@@ -71,11 +71,11 @@ export function GameInfoEditor({ value, onChange, onClose }: GameInfoEditorProps
         </div>
 
         <div className="game-info-editor__quick-actions">
+          <button type="button" onClick={() => onChange(retreatToPreviousKyoku(value))}>
+            前の局に戻す
+          </button>
           <button type="button" onClick={() => onChange(advanceToNextKyoku(value))}>
             次の局に更新
-          </button>
-          <button type="button" onClick={() => onChange(applyRenchan(value))}>
-            連チャン
           </button>
         </div>
 

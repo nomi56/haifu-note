@@ -47,7 +47,17 @@ export function advanceToNextKyoku(info: GameInfo): GameInfo {
   };
 }
 
-/** 連荘(親が継続)。場風・局数・座席は変わらず、本場だけ加算する */
-export function applyRenchan(info: GameInfo): GameInfo {
-  return { ...info, honba: info.honba + 1 };
+/**
+ * advanceToNextKyokuの逆操作。前の局に戻す。局数が1を下回ったら場風を戻して4局にし、本場は0にリセットする。
+ * 親が前の人(旧・自分から見て上家)に戻るため、自分の座席は東→南→西→北→東と一つ繰り下がる
+ */
+export function retreatToPreviousKyoku(info: GameInfo): GameInfo {
+  const windRetreats = info.roundNumber <= 1;
+  return {
+    ...info,
+    roundWind: windRetreats ? prevWind(info.roundWind) : info.roundWind,
+    roundNumber: windRetreats ? 4 : info.roundNumber - 1,
+    honba: 0,
+    seat: nextWind(info.seat),
+  };
 }
