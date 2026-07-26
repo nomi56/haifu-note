@@ -251,6 +251,7 @@ function App() {
             onAddNew={startNewKyoku}
           />
 
+          <h2>牌譜</h2>
           <KyokuEditor
             kyoku={inProgress}
             isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}

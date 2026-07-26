@@ -99,7 +99,7 @@ export function KyokuEditor({
       )}
 
       <div className="kyoku-editor__river-header">
-        <h3>牌譜</h3>
+        <h3>この局の記録</h3>
         <div className="tile-size-picker">
           <span className="tile-size-picker__label">牌の表示サイズ</span>
           {TILE_SIZE_OPTIONS.map((opt) => (
