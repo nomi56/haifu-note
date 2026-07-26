@@ -208,6 +208,13 @@ function App() {
     setSavedSnapshot(snapshotOf(session, inProgress));
   }
 
+  // 保存・読込画面へ移動する前に、編集中の局を履歴へ反映しておく(ダウンロードに含めるため)。
+  // 新規局への切り替えは行わず、編集中の内容はそのまま記録画面に残す
+  function handleGoToFileView() {
+    saveInProgressToSession();
+    setView('file');
+  }
+
   return (
     <div className="app" style={{ '--tile-size': TILE_SIZE_PX[tileSize] } as CSSProperties}>
       <header className="app__header">
@@ -216,7 +223,7 @@ function App() {
           <button type="button" className={view === 'record' ? 'active' : ''} onClick={() => setView('record')}>
             記録
           </button>
-          <button type="button" className={view === 'file' ? 'active' : ''} onClick={() => setView('file')}>
+          <button type="button" className={view === 'file' ? 'active' : ''} onClick={handleGoToFileView}>
             保存・読込
           </button>
         </nav>
