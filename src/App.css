@@ -406,17 +406,16 @@
 
 .kyoku-editor__header {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
 .kyoku-editor__name {
-  flex: 1 1 0;
-  min-width: 0;
+  width: 100%;
 }
 
 .kyoku-editor__game-info {
-  flex: 1 1 0;
-  min-width: 0;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
