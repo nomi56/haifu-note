@@ -409,23 +409,10 @@
 }
 
 .kyoku-editor__game-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  display: block;
+  width: 100%;
   margin-top: 6px;
-}
-
-.kyoku-editor__game-info-text {
-  font-size: 12px;
-  color: var(--text);
-}
-
-.kyoku-editor__game-info-edit {
-  font-size: 13px;
-  padding: 2px 10px;
-  color: var(--accent);
-  border-color: var(--accent-border);
+  text-align: left;
 }
 
 .kyoku-editor__editing-banner {
@@ -632,6 +619,20 @@
 }
 
 /* Game info editor */
+.game-info-editor__quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.game-info-editor__quick-actions button {
+  flex: 1 1 0;
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .game-info-editor__field {
   margin-bottom: 12px;
 }

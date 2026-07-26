@@ -72,14 +72,9 @@ export function KyokuEditor({
         />
       </div>
 
-      <div className="kyoku-editor__game-info">
-        <span className="kyoku-editor__game-info-text">
-          {kyoku.gameInfo ? formatGameInfo(kyoku.gameInfo) : '場の情報未設定'}
-        </span>
-        <button type="button" className="kyoku-editor__game-info-edit" onClick={openGameInfoEditor}>
-          編集
-        </button>
-      </div>
+      <button type="button" className="kyoku-editor__game-info" onClick={openGameInfoEditor}>
+        {kyoku.gameInfo ? formatGameInfo(kyoku.gameInfo) : '場の情報未設定'}
+      </button>
       {gameInfoEditorOpen && kyoku.gameInfo && (
         <GameInfoEditor
           value={kyoku.gameInfo}
