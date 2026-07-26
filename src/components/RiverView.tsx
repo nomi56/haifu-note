@@ -1,4 +1,5 @@
 import { TurnRow } from './TurnRow';
+import { isRinshan } from '../tiles';
 import type { Turn } from '../types';
 
 interface RiverViewProps {
@@ -13,7 +14,7 @@ export function RiverView({ turns, emptyText = 'まだ牌譜がありません' 
   return (
     <div className="river-view">
       {turns.map((turn, i) => (
-        <TurnRow key={i} turn={turn} index={i} />
+        <TurnRow key={i} turn={turn} index={i} rinshan={isRinshan(turns, i)} />
       ))}
     </div>
   );

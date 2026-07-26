@@ -115,3 +115,11 @@ export function isTsumogiri(turn: Turn): boolean {
   if (turn.call) return false;
   return turn.draw !== undefined && turn.draw === turn.discard;
 }
+
+/** 直前の手がカン/暗カンで、この手が自摸なら、リンシャンツモとみなす（保存はせず都度算出する） */
+export function isRinshan(turns: Turn[], index: number): boolean {
+  const turn = turns[index];
+  const prev = turns[index - 1];
+  if (!prev?.call) return false;
+  return (prev.call.type === 'kan' || prev.call.type === 'ankan') && !turn.call;
+}

@@ -5,9 +5,10 @@ import type { Turn } from '../types';
 interface TurnRowProps {
   turn: Turn;
   index: number;
+  rinshan: boolean;
 }
 
-export function TurnRow({ turn, index }: TurnRowProps) {
+export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
   const tsumogiri = isTsumogiri(turn);
 
   return (
@@ -23,16 +24,25 @@ export function TurnRow({ turn, index }: TurnRowProps) {
           <TileGlyph tile={turn.call.tiles[0]} className="tile-emoji" />
         </span>
       ) : (
-        <span className="turn-row__draw">{turn.draw ? <TileGlyph tile={turn.draw} className="tile-emoji" /> : '?'}</span>
+        <span className="turn-row__draw">
+          {rinshan && <span className="turn-row__rinshan-badge">リンシャン</span>}
+          {turn.draw ? <TileGlyph tile={turn.draw} className="tile-emoji" /> : '?'}
+        </span>
       )}
-      <span className="turn-row__arrow">→</span>
-      <span className={`turn-row__discard${turn.riichi ? ' turn-row__discard--riichi' : ''}`}>
-        <TileGlyph tile={turn.discard} className="tile-emoji" />
-      </span>
-      <span className={`turn-row__label${tsumogiri ? ' turn-row__label--tsumogiri' : ''}`}>
-        {tsumogiri ? 'ツモ切り' : '手出し'}
-      </span>
-      {turn.riichi && <span className="turn-row__riichi-badge">リーチ</span>}
+      {turn.discard ? (
+        <>
+          <span className="turn-row__arrow">→</span>
+          <span className={`turn-row__discard${turn.riichi ? ' turn-row__discard--riichi' : ''}`}>
+            <TileGlyph tile={turn.discard} className="tile-emoji" />
+          </span>
+          <span className={`turn-row__label${tsumogiri ? ' turn-row__label--tsumogiri' : ''}`}>
+            {tsumogiri ? 'ツモ切り' : '手出し'}
+          </span>
+          {turn.riichi && <span className="turn-row__riichi-badge">リーチ</span>}
+        </>
+      ) : (
+        <span className="turn-row__label">リンシャンツモへ続く</span>
+      )}
     </div>
   );
 }

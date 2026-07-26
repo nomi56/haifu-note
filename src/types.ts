@@ -23,7 +23,8 @@ export interface Turn {
   draw?: Tile;
   /** チー/ポン/カンで鳴いた場合の情報。自摸の場合は未設定 */
   call?: Call;
-  discard: Tile;
+  /** カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌は発生しない */
+  discard?: Tile;
   riichi: boolean;
 }
 

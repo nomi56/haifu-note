@@ -30,7 +30,16 @@ const CALL_TILE_LABEL: Partial<Record<Mode, string>> = {
   chi: 'チーした牌',
   pon: 'ポンした牌',
   kan: 'カンした牌',
-  ankan: '暗カンする牌',
+  ankan: 'ツモった牌（暗カンする牌）',
+};
+
+// カン/暗カンの直後はリンシャンツモに続くため、この局面では打牌・リーチは発生しない
+const NEEDS_DISCARD: Record<Mode, boolean> = {
+  tsumo: true,
+  chi: true,
+  pon: true,
+  kan: false,
+  ankan: false,
 };
 
 export function TurnEditor({ onAdd }: TurnEditorProps) {
@@ -41,7 +50,8 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   const [discardTile, setDiscardTile] = useState<Tile | null>(null);
   const [riichi, setRiichi] = useState(false);
 
-  const canAdd = (mode === 'tsumo' ? drawTile !== null : callTile !== null) && discardTile !== null;
+  const needsDiscard = NEEDS_DISCARD[mode];
+  const canAdd = (mode === 'tsumo' ? drawTile !== null : callTile !== null) && (!needsDiscard || discardTile !== null);
 
   function reset() {
     setDrawTile(null);
@@ -65,12 +75,12 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
   }
 
   function handleAdd() {
-    if (!canAdd || !discardTile) return;
+    if (!canAdd) return;
     const turn: Turn = {
       draw: mode === 'tsumo' ? (drawTile ?? undefined) : undefined,
       call: buildCall(),
-      discard: discardTile,
-      riichi,
+      discard: needsDiscard ? (discardTile ?? undefined) : undefined,
+      riichi: needsDiscard && riichi,
     };
     onAdd(turn);
     reset();
@@ -111,20 +121,31 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
         </div>
       )}
 
-      <div className="turn-editor__section">
-        <h4>打牌</h4>
-        <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
-      </div>
+      {needsDiscard ? (
+        <>
+          <div className="turn-editor__section">
+            <h4>打牌</h4>
+            <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
+          </div>
 
-      <div className="turn-editor__footer">
-        <label className="turn-editor__riichi">
-          <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
-          リーチ宣言
-        </label>
-        <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
-          1手追加
-        </button>
-      </div>
+          <div className="turn-editor__footer">
+            <label className="turn-editor__riichi">
+              <input type="checkbox" checked={riichi} onChange={(e) => setRiichi(e.target.checked)} />
+              リーチ宣言
+            </label>
+            <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
+              1手追加
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="turn-editor__footer turn-editor__footer--no-riichi">
+          <p className="turn-editor__hint">続けてリンシャンツモを記録してください（打牌・リーチはありません）</p>
+          <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
+            1手追加
+          </button>
+        </div>
+      )}
     </div>
   );
 }
