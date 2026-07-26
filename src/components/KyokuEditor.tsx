@@ -42,7 +42,9 @@ export function KyokuEditor({
   onChangeTileSize,
 }: KyokuEditorProps) {
   const [haipaiPickerOpen, setHaipaiPickerOpen] = useState(false);
+  const [haipaiEditMode, setHaipaiEditMode] = useState(false);
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
+  const haipaiFull = kyoku.haipai.length >= 13;
   const sortedHaipai = kyoku.haipai
     .map((tile, index) => ({ tile, index }))
     .sort((a, b) => tileSortKey(a.tile) - tileSortKey(b.tile));
@@ -60,26 +62,53 @@ export function KyokuEditor({
       </div>
 
       <div className="kyoku-editor__haipai-header">
-        <span className="kyoku-editor__haipai-label">配牌（{kyoku.haipai.length}枚）</span>
-        <button type="button" className="tile-chip-add" onClick={() => setHaipaiPickerOpen((v) => !v)}>
-          ＋
-        </button>
+        <span className="kyoku-editor__haipai-label">配牌（{kyoku.haipai.length}/13枚）</span>
+        {haipaiEditMode ? (
+          <button type="button" className="haipai-edit-done" onClick={() => setHaipaiEditMode(false)}>
+            完了
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="tile-chip-add"
+            disabled={haipaiFull}
+            onClick={() => setHaipaiPickerOpen(true)}
+          >
+            ＋
+          </button>
+        )}
       </div>
       {kyoku.haipai.length > 0 && (
-        <div className="haipai-tiles">
+        <div
+          className="haipai-tiles"
+          onClick={() => {
+            if (!haipaiEditMode) setHaipaiEditMode(true);
+          }}
+        >
           {sortedHaipai.map(({ tile, index }) => (
-            <button key={index} type="button" className="haipai-tile" onClick={() => onRemoveHaipaiTile(index)}>
-              <TileGlyph tile={tile} className="tile-emoji" />
-              <span className="tile-chip__remove" aria-hidden="true">
-                ×
-              </span>
+            <button
+              key={index}
+              type="button"
+              className="haipai-tile"
+              onClick={(e) => {
+                if (!haipaiEditMode) return;
+                e.stopPropagation();
+                onRemoveHaipaiTile(index);
+              }}
+            >
+              <TileGlyph tile={tile} />
+              {haipaiEditMode && (
+                <span className="tile-chip__remove" aria-hidden="true">
+                  ×
+                </span>
+              )}
             </button>
           ))}
         </div>
       )}
       {haipaiPickerOpen && (
         <TileSelectModal
-          title="配牌を選ぶ（続けてタップで複数選択）"
+          title="配牌を選ぶ（続けてタップで複数選択、最大13枚）"
           onSelect={onAddHaipaiTile}
           onClose={() => setHaipaiPickerOpen(false)}
           keepOpenOnSelect

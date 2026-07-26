@@ -91,7 +91,7 @@ function App() {
   }
 
   function addHaipaiTile(tile: Tile) {
-    setInProgress((prev) => ({ ...prev, haipai: [...prev.haipai, tile] }));
+    setInProgress((prev) => (prev.haipai.length >= 13 ? prev : { ...prev, haipai: [...prev.haipai, tile] }));
   }
 
   function removeHaipaiTile(index: number) {
