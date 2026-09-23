@@ -238,19 +238,14 @@ export class Hand {
     );
   }
 
-  /** 牌譜の各行に添える手牌の表示。詰めた小さい牌で、増えた牌の強調・副露・減った牌・不整合の理由を並べる */
-  renderHistory({ added, removed, issues }: HandDiff & { issues: HandIssue[] }): ReactNode {
+  /** 牌譜の各行に添える手牌の表示。詰めた小さい牌で、増えた牌の強調・副露・不整合の理由を並べる */
+  renderHistory({ added, issues }: Pick<HandStep, 'added' | 'issues'>): ReactNode {
     return (
       <div className="hand-view hand-view--history">
         <span className="hand-view__concealed">{this.renderTiles(this.tiles, added, 'hand-view__tile')}</span>
         {this.melds.map((m, i) => (
           <TileMeld key={i} tiles={callDisplayTiles(m)} className="hand-view__meld" />
         ))}
-        {removed.length > 0 && (
-          <span className="hand-view__removed" title="この手で手牌から減った牌">
-            −{this.renderTiles(sortTiles(removed), [], 'hand-view__tile')}
-          </span>
-        )}
         {issues.length > 0 && (
           <span className="hand-view__issues">{issues.map((issue) => issue.message).join(' / ')}</span>
         )}
