@@ -24,8 +24,13 @@ export interface HandStep extends HandDiff {
 }
 
 const HAIPAI_SIZE = 13;
-// 履歴の手牌で、手牌・和了牌・面子の間に空ける隙間(牌1枚の幅を1としたときの幅)。CSSのgap(0.25em)と牌の幅(約0.8em)から求めた値
+// 履歴の手牌の幅の見積もり(牌1枚の幅(約0.8em)を1としたときの幅)。CSSの値から求めたもの
+// 手牌・和了牌・面子の間の隙間(gap: 0.25em)
 const HISTORY_MELD_GAP_SLOTS = 0.3;
+// 副露の前に追加で空ける間(margin-left: 0.5em)
+const HISTORY_MELDS_LEAD_SLOTS = 0.6;
+// 横向きの牌の左右の余白(margin: 0 0.16em)
+const ROTATED_TILE_EXTRA_SLOTS = 0.4;
 
 /** 赤5と通常の5を入れ替えた牌(それ以外はnull)。副露に使う牌の代用に使う */
 function fiveCounterpart(tile: Tile): Tile | null {
@@ -259,10 +264,16 @@ export class Hand {
       if (i !== -1) handAdded.splice(i, 1);
     }
     // 行の幅いっぱいに収まる大きさにするため、並べる幅が牌何枚ぶんかをCSSに渡す。
-    // 鳴いた牌は回転表示でもレイアウト上の幅は1枚ぶん。和了牌は門前の枚数に含まれるので、手牌との間の分だけ足す
+    // 横向きの牌は左右の余白の分だけ広く数える。和了牌は門前の枚数に含まれるので、手牌との間の分だけ足す
+    const meldSlots = this.melds.reduce(
+      (sum, m) =>
+        sum + m.tiles.length + callDisplayTiles(m).filter((t) => t.rotated).length * ROTATED_TILE_EXTRA_SLOTS,
+      0,
+    );
     const slots =
       this.concealed.length +
-      this.melds.reduce((sum, m) => sum + m.tiles.length, 0) +
+      meldSlots +
+      (this.melds.length > 0 ? HISTORY_MELDS_LEAD_SLOTS : 0) +
       (this.melds.length + (agariTile !== null ? 1 : 0)) * HISTORY_MELD_GAP_SLOTS;
     return (
       <div className="hand-view hand-view--history" style={{ '--hand-slots': slots } as CSSProperties}>

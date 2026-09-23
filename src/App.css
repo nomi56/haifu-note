@@ -369,6 +369,9 @@
 .tile-emoji--rotated {
   display: inline-block;
   transform: rotate(90deg);
+  /* 回転してもレイアウト上の幅は縦向きのまま(約0.8em)なので、横向きになった見た目の幅(約1.1em)との差を
+     左右の余白で確保し、隣の牌に重ならないようにする */
+  margin: 0 0.16em;
 }
 
 .turn-row__label {
@@ -422,6 +425,12 @@
 
 .hand-view__agari {
   display: inline-flex;
+}
+
+/* 副露は手牌・和了牌から離して置き、和了牌と鳴いた牌が続いて見えないようにする */
+.hand-view__concealed + .hand-view__meld,
+.hand-view__agari + .hand-view__meld {
+  margin-left: 0.5em;
 }
 
 .hand-view__meld .tile-emoji {
