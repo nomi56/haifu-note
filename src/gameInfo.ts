@@ -52,6 +52,11 @@ export function renchan(info: GameInfo): GameInfo {
   return { ...info, honba: info.honba + 1 };
 }
 
+/** 流局して親が流れた場合。局は次に進む(座席も繰り上がる)が、本場はリセットせず1つ積む */
+export function ryukyokuOyanagare(info: GameInfo): GameInfo {
+  return { ...advanceToNextKyoku(info), honba: info.honba + 1 };
+}
+
 /**
  * advanceToNextKyokuの逆操作。前の局に戻す。局数が1を下回ったら場風を戻して4局にし、本場は0にリセットする。
  * 親が前の人(旧・自分から見て上家)に戻るため、自分の座席は東→南→西→北→東と一つ繰り下がる

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TileGlyph } from './TileGlyph';
-import { advanceToNextKyoku, formatGameInfo, renchan } from '../gameInfo';
+import { advanceToNextKyoku, formatGameInfo, renchan, ryukyokuOyanagare } from '../gameInfo';
 import type { GameInfo, Kyoku } from '../types';
 
 interface SessionHistoryProps {
@@ -33,10 +33,12 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
 
 export function SessionHistory({ kyokus, editingId, onSelect, baseGameInfo, onAddNew }: SessionHistoryProps) {
   const [choosing, setChoosing] = useState(false);
-  // 親が流れる(次の局)か、親が続投する(連荘)かで場の情報の進め方が異なるため、追加時に選ばせる
+  // 親が流れる(次の局)か、親が続投する(連荘)か、流局で親が流れる(本場は積む)かで
+  // 場の情報の進め方が異なるため、追加時に選ばせる
   const options = [
     { label: '次の局へ', gameInfo: advanceToNextKyoku(baseGameInfo) },
     { label: '連荘', gameInfo: renchan(baseGameInfo) },
+    { label: '流局（親流れ）', gameInfo: ryukyokuOyanagare(baseGameInfo) },
   ];
 
   function handleChoose(gameInfo: GameInfo) {
