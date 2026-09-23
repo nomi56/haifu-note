@@ -668,6 +668,32 @@
   margin-top: 4px;
 }
 
+.new-kyoku-dialog__base {
+  font-size: 12px;
+  color: var(--text);
+  margin: -8px 0 12px;
+}
+
+.new-kyoku-dialog__choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.new-kyoku-dialog__choice-label {
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.new-kyoku-dialog__choice-info {
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+
 .history-item {
   border: 1px solid var(--border);
   border-radius: 6px;
