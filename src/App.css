@@ -668,37 +668,30 @@
   margin-top: 4px;
 }
 
-.session-history__add-choices {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
+.new-kyoku-dialog__base {
+  font-size: 12px;
+  color: var(--text);
+  margin: -8px 0 12px;
 }
 
-.session-history__add-choices button {
+.new-kyoku-dialog__choice {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
 }
 
-.session-history__add-choice-label {
+.new-kyoku-dialog__choice-label {
   font-weight: 600;
   color: var(--accent);
   white-space: nowrap;
 }
 
-.session-history__add-choice-info {
+.new-kyoku-dialog__choice-info {
   font-size: 12px;
   color: var(--text);
   text-align: right;
-}
-
-.session-history__add-choices .session-history__add-cancel {
-  justify-content: center;
-  padding: 4px;
-  font-size: 13px;
 }
 
 .history-item {
