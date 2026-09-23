@@ -390,16 +390,18 @@
 
 .turn-row__hand {
   flex-basis: 100%;
-  padding-left: calc(1.5em + 6px);
+  /* 手牌の大きさを行の幅から決めるため、行の幅を基準(cqw)にする */
+  container-type: inline-size;
 }
 
-/* 履歴の各行に添える手牌。行の牌より小さく、隙間を詰めて1行に収まりやすくする */
+/* 履歴の各行に添える手牌。手牌＋副露(--hand-slots枚ぶん)が行の幅に収まる最大の大きさにする。
+   牌1枚の幅は文字サイズの約0.8倍。上限は行の牌の大きさ(牌の表示サイズ設定) */
 .hand-view--history {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
-  font-size: calc(var(--tile-size, 38px) * 0.6);
+  gap: 0.25em;
+  font-size: min(var(--tile-size, 38px), calc(100cqw / (var(--hand-slots, 14) * 0.82)));
   line-height: 1;
 }
 
@@ -425,6 +427,7 @@
 .hand-view__issues {
   flex-basis: 100%;
   font-size: 11px;
+  line-height: 1.4;
   color: var(--danger);
 }
 

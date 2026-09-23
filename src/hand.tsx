@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { TileGlyph } from './components/TileGlyph';
 import { TileMeld } from './components/TileMeld';
 import { callDisplayTiles, isRedFive, normalFive, sortTiles, tileLabel, tileSortKey } from './tiles';
@@ -24,6 +24,8 @@ export interface HandStep extends HandDiff {
 }
 
 const HAIPAI_SIZE = 13;
+// 履歴の手牌で、面子と面子の間に空ける隙間(牌1枚の幅を1としたときの幅)。CSSのgap(0.25em)と牌の幅(約0.8em)から求めた値
+const HISTORY_MELD_GAP_SLOTS = 0.3;
 
 /** 赤5と通常の5を入れ替えた牌(それ以外はnull)。副露に使う牌の代用に使う */
 function fiveCounterpart(tile: Tile): Tile | null {
@@ -240,8 +242,14 @@ export class Hand {
 
   /** 牌譜の各行に添える手牌の表示。詰めた小さい牌で、増えた牌の強調・副露・不整合の理由を並べる */
   renderHistory({ added, issues }: Pick<HandStep, 'added' | 'issues'>): ReactNode {
+    // 行の幅いっぱいに収まる大きさにするため、並べる幅が牌何枚ぶんかをCSSに渡す。
+    // 鳴いた牌は回転表示でもレイアウト上の幅は1枚ぶん
+    const slots =
+      this.concealed.length +
+      this.melds.reduce((sum, m) => sum + m.tiles.length, 0) +
+      this.melds.length * HISTORY_MELD_GAP_SLOTS;
     return (
-      <div className="hand-view hand-view--history">
+      <div className="hand-view hand-view--history" style={{ '--hand-slots': slots } as CSSProperties}>
         <span className="hand-view__concealed">{this.renderTiles(this.tiles, added, 'hand-view__tile')}</span>
         {this.melds.map((m, i) => (
           <TileMeld key={i} tiles={callDisplayTiles(m)} className="hand-view__meld" />
