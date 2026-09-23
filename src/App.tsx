@@ -68,6 +68,7 @@ function App() {
   const [inProgress, setInProgress] = useState<Kyoku>(initial.inProgress);
   const [view, setView] = useState<View>('record');
   const [tileSize, setTileSize] = useState<TileSize>(() => storage.loadTileSize());
+  const [showHand, setShowHand] = useState(() => storage.loadShowHand());
   const [pendingSwitch, setPendingSwitch] = useState<PendingSwitch | null>(null);
   // ダウンロード/読込/新規作成した時点のスナップショット。現在の内容とズレていれば
   // 「ファイルに書き出していない変更がある」とみなし、離脱時に警告を出す
@@ -91,6 +92,10 @@ function App() {
   useEffect(() => {
     storage.saveTileSize(tileSize);
   }, [tileSize]);
+
+  useEffect(() => {
+    storage.saveShowHand(showHand);
+  }, [showHand]);
 
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
@@ -300,6 +305,8 @@ function App() {
             onRemoveLastTurn={removeLastTurn}
             tileSize={tileSize}
             onChangeTileSize={setTileSize}
+            showHand={showHand}
+            onChangeShowHand={setShowHand}
           />
 
           <button

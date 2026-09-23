@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { GameInfoEditor } from './GameInfoEditor';
 import { HaipaiEditor } from './HaipaiEditor';
@@ -9,6 +9,7 @@ import { TileSelectModal } from './TileSelectModal';
 import { TurnEditor } from './TurnEditor';
 import { TurnRow } from './TurnRow';
 import { formatGameInfo } from '../gameInfo';
+import { Hand, traceHands } from '../hand';
 import { isRinshan } from '../tiles';
 import type { GameInfo, Kyoku, Tile, TileSize, Turn } from '../types';
 
@@ -29,6 +30,8 @@ interface KyokuEditorProps {
   onRemoveLastTurn: () => void;
   tileSize: TileSize;
   onChangeTileSize: (size: TileSize) => void;
+  showHand: boolean;
+  onChangeShowHand: (show: boolean) => void;
 }
 
 // 入力欄の対象。未設定なら末尾への通常の追加。editはindex番目を置き換え、insertはindex番目の前に挿入する
@@ -57,6 +60,8 @@ export function KyokuEditor({
   onRemoveLastTurn,
   tileSize,
   onChangeTileSize,
+  showHand,
+  onChangeShowHand,
 }: KyokuEditorProps) {
   const [haipaiEditorOpen, setHaipaiEditorOpen] = useState(false);
   const [doraPickerOpen, setDoraPickerOpen] = useState(false);
@@ -65,6 +70,17 @@ export function KyokuEditor({
   const [target, setTarget] = useState<TurnTarget | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const turnEditorRef = useRef<HTMLDivElement>(null);
+  // 各手の直後の手牌。配牌が13枚そろっていない場合はnull(追跡できない)
+  const handSteps = useMemo(
+    () => (showHand ? traceHands(kyoku.haipai, kyoku.turns) : null),
+    [showHand, kyoku.haipai, kyoku.turns],
+  );
+  // 入力欄で入力中の手を打つ直前の手牌。通常の追加なら最後の手の後、修正/挿入なら対象の手の直前
+  const handBeforeInput = useMemo(() => {
+    if (!handSteps) return null;
+    const index = target ? target.index : kyoku.turns.length;
+    return index === 0 ? Hand.fromHaipai(kyoku.haipai) : handSteps[index - 1].hand;
+  }, [handSteps, target, kyoku.haipai, kyoku.turns.length]);
 
   // 修正/挿入を始めたら、下にある入力欄が見えるようにスクロールする
   useEffect(() => {
@@ -167,20 +183,29 @@ export function KyokuEditor({
 
       <div className="kyoku-editor__river-header">
         <h3>この局の記録</h3>
-        <div className="tile-size-picker">
-          <span className="tile-size-picker__label">牌の表示サイズ</span>
-          {TILE_SIZE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={tileSize === opt.value ? 'active' : ''}
-              onClick={() => onChangeTileSize(opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="kyoku-editor__view-options">
+          <div className="tile-size-picker">
+            <span className="tile-size-picker__label">牌の表示サイズ</span>
+            {TILE_SIZE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={tileSize === opt.value ? 'active' : ''}
+                onClick={() => onChangeTileSize(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <label className="kyoku-editor__show-hand">
+            <input type="checkbox" checked={showHand} onChange={(e) => onChangeShowHand(e.target.checked)} />
+            手牌表示
+          </label>
         </div>
       </div>
+      {showHand && !Hand.canTrack(kyoku.haipai) && (
+        <p className="kyoku-editor__hand-hint">配牌（13枚）を入力すると手牌を表示します</p>
+      )}
       <RiverView
         turns={kyoku.turns}
         selectedIndex={selectedIndex}
@@ -193,6 +218,7 @@ export function KyokuEditor({
         }}
         onDelete={setDeleteIndex}
         onClearSelection={clearTurnSelection}
+        handSteps={handSteps}
       />
       {kyoku.turns.length > 0 && (
         <button type="button" className="kyoku-editor__undo" onClick={handleRemoveLastTurn}>
@@ -211,6 +237,7 @@ export function KyokuEditor({
           }
           submitLabel={target ? (target.kind === 'edit' ? '修正を確定' : '挿入する') : undefined}
           onCancel={target ? clearTurnSelection : undefined}
+          handBefore={handBeforeInput}
         />
       </div>
 

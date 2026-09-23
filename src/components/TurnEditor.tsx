@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
 import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles, sortTiles } from '../tiles';
+import type { Hand } from '../hand';
 import type { AgariSource, Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
@@ -13,6 +14,8 @@ interface TurnEditorProps {
   submitLabel?: string;
   /** 修正/挿入を取りやめる。設定されている場合のみキャンセルボタンを出す */
   onCancel?: () => void;
+  /** この手を打つ直前の手牌。指定すると、入力中の手が手牌と合わない場合に警告を出す */
+  handBefore?: Hand | null;
 }
 
 type Mode = 'tsumo' | 'chi' | 'pon' | 'kan' | 'ankan' | 'agari';
@@ -125,7 +128,14 @@ function stateFromTurn(turn: Turn): EditorState {
   }
 }
 
-export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手追加', onCancel }: TurnEditorProps) {
+export function TurnEditor({
+  onSubmit,
+  initialTurn,
+  heading,
+  submitLabel = '1手追加',
+  onCancel,
+  handBefore = null,
+}: TurnEditorProps) {
   const [initial] = useState(() => (initialTurn ? stateFromTurn(initialTurn) : EMPTY_STATE));
   const [mode, setMode] = useState<Mode>(initial.mode);
   const [drawTile, setDrawTile] = useState<Tile | null>(initial.drawTile);
@@ -198,9 +208,8 @@ export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手
     if (!karagiriEnabled) setKaragiri(false);
   }, [karagiriEnabled]);
 
-  function handleAdd() {
-    if (!canAdd) return;
-    const turn: Turn = {
+  function buildTurn(): Turn {
+    return {
       draw: requiresDraw ? (drawTile ?? undefined) : undefined,
       call: buildCall(),
       discard: needsDiscard ? (discardTile ?? undefined) : undefined,
@@ -208,7 +217,14 @@ export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手
       karagiri: karagiriEnabled && karagiri,
       agari: requiresAgariTile && agariTile ? { tile: agariTile, source: agariSource } : undefined,
     };
-    onSubmit(turn);
+  }
+
+  // 入力中の手を直前の手牌に仮に適用し、手牌と合わない(持っていない牌を切る等)場合は警告する。追加自体は止めない
+  const draftIssues = canAdd && handBefore ? handBefore.clone().applyTurn(buildTurn()) : [];
+
+  function handleAdd() {
+    if (!canAdd) return;
+    onSubmit(buildTurn());
     // 修正/挿入の確定後は親が入力欄を作り直すため、ここでのリセットは通常の追加時のみ
     if (initialTurn || onCancel) return;
     reset();
@@ -217,6 +233,9 @@ export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手
   }
 
   const isTargeted = heading !== undefined;
+  const warning = draftIssues.length > 0 && (
+    <p className="turn-editor__warning">⚠ {draftIssues.map((i) => i.message).join(' / ')}</p>
+  );
   const submitButtons = (
     <div className="turn-editor__submit">
       {onCancel && (
@@ -351,6 +370,7 @@ export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手
             <TileSelectField value={discardTile} onChange={setDiscardTile} title="切った牌を選ぶ" />
           </div>
 
+          {warning}
           <div className="turn-editor__footer">
             <div className="turn-editor__footer-options">
               {allowsRiichi && (
@@ -374,12 +394,15 @@ export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手
           {isTargeted && submitButtons}
         </>
       ) : (
-        <div className="turn-editor__footer turn-editor__footer--no-riichi">
-          <p className="turn-editor__hint">
-            {mode === 'agari' ? 'この局はこの手で終了します' : '続けてリンシャンツモを記録してください'}
-          </p>
-          {!isTargeted && submitButtons}
-        </div>
+        <>
+          {warning}
+          <div className="turn-editor__footer turn-editor__footer--no-riichi">
+            <p className="turn-editor__hint">
+              {mode === 'agari' ? 'この局はこの手で終了します' : '続けてリンシャンツモを記録してください'}
+            </p>
+            {!isTargeted && submitButtons}
+          </div>
+        </>
       )}
       {!needsDiscard && isTargeted && submitButtons}
     </div>

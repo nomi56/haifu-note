@@ -1,5 +1,4 @@
-import { TileGlyph } from './TileGlyph';
-import { tileSortKey } from '../tiles';
+import { Hand } from '../hand';
 import type { Tile } from '../types';
 
 interface HaipaiRowProps {
@@ -8,31 +7,7 @@ interface HaipaiRowProps {
   onTapTile?: (index: number) => void;
 }
 
-/** 配牌を13枠固定で表示する。未入力の枠は？で仮表示する */
+/** 配牌を13枠固定で表示する。表示自体は手牌クラス(Hand)の配牌用表示に任せる */
 export function HaipaiRow({ haipai, onTapTile }: HaipaiRowProps) {
-  const sorted = haipai
-    .map((tile, index) => ({ tile, index }))
-    .sort((a, b) => tileSortKey(a.tile) - tileSortKey(b.tile));
-  const emptyCount = Math.max(0, 13 - haipai.length);
-
-  return (
-    <div className="haipai-tiles">
-      {sorted.map(({ tile, index }) =>
-        onTapTile ? (
-          <button key={index} type="button" className="haipai-tile" onClick={() => onTapTile(index)}>
-            <TileGlyph tile={tile} />
-          </button>
-        ) : (
-          <span key={index} className="haipai-tile">
-            <TileGlyph tile={tile} />
-          </span>
-        ),
-      )}
-      {Array.from({ length: emptyCount }).map((_, i) => (
-        <span key={`empty-${i}`} className="haipai-tile">
-          <span className="haipai-tile__empty-mark">？</span>
-        </span>
-      ))}
-    </div>
-  );
+  return Hand.fromHaipai(haipai).renderHaipai({ onTapTile });
 }

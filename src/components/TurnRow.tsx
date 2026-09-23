@@ -1,6 +1,7 @@
 import { TileGlyph } from './TileGlyph';
 import { TileMeld } from './TileMeld';
 import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, CALL_TYPE_LABEL, callDisplayTiles, isTsumogiri } from '../tiles';
+import type { HandStep } from '../hand';
 import type { Turn } from '../types';
 
 interface TurnRowProps {
@@ -10,9 +11,11 @@ interface TurnRowProps {
   selected?: boolean;
   /** 設定されている場合のみ行をタップ可能にする(表示専用の用途では未設定) */
   onSelect?: () => void;
+  /** この手の直後の手牌。指定すると行の下に手牌を表示し、不整合があればバッジを出す */
+  handStep?: HandStep;
 }
 
-export function TurnRow({ turn, index, rinshan, selected = false, onSelect }: TurnRowProps) {
+export function TurnRow({ turn, index, rinshan, selected = false, onSelect, handStep }: TurnRowProps) {
   const tsumogiri = isTsumogiri(turn);
   const className = `turn-row${onSelect ? ' turn-row--selectable' : ''}${selected ? ' turn-row--selected' : ''}`;
 
@@ -72,6 +75,8 @@ export function TurnRow({ turn, index, rinshan, selected = false, onSelect }: Tu
       ) : (
         <span className="turn-row__label">リンシャンツモへ続く</span>
       )}
+      {handStep && handStep.issues.length > 0 && <span className="turn-row__issue-badge">不整合</span>}
+      {handStep && <div className="turn-row__hand">{handStep.hand.renderHistory(handStep)}</div>}
     </div>
   );
 }
