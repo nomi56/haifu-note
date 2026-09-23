@@ -123,10 +123,6 @@ function App() {
     setInProgress((prev) => ({ ...prev, turns: prev.turns.filter((_, i) => i !== index) }));
   }
 
-  function removeLastTurn() {
-    setInProgress((prev) => ({ ...prev, turns: prev.turns.slice(0, -1) }));
-  }
-
   function addHaipaiTile(tile: Tile) {
     setInProgress((prev) => (prev.haipai.length >= 13 ? prev : { ...prev, haipai: [...prev.haipai, tile] }));
   }
@@ -302,7 +298,6 @@ function App() {
             onUpdateTurn={updateTurn}
             onInsertTurn={insertTurn}
             onRemoveTurn={removeTurn}
-            onRemoveLastTurn={removeLastTurn}
             tileSize={tileSize}
             onChangeTileSize={setTileSize}
             showHand={showHand}

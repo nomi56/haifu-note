@@ -730,11 +730,6 @@
   text-align: center;
 }
 
-.kyoku-editor__undo {
-  font-size: 12px;
-  margin-top: 6px;
-}
-
 .kyoku-editor__memo {
   display: flex;
   flex-direction: column;

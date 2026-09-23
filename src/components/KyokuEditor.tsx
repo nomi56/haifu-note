@@ -27,7 +27,6 @@ interface KyokuEditorProps {
   onUpdateTurn: (index: number, turn: Turn) => void;
   onInsertTurn: (index: number, turn: Turn) => void;
   onRemoveTurn: (index: number) => void;
-  onRemoveLastTurn: () => void;
   tileSize: TileSize;
   onChangeTileSize: (size: TileSize) => void;
   showHand: boolean;
@@ -57,7 +56,6 @@ export function KyokuEditor({
   onUpdateTurn,
   onInsertTurn,
   onRemoveTurn,
-  onRemoveLastTurn,
   tileSize,
   onChangeTileSize,
   showHand,
@@ -112,12 +110,6 @@ export function KyokuEditor({
     onRemoveTurn(deleteIndex);
     setDeleteIndex(null);
     clearTurnSelection();
-  }
-
-  function handleRemoveLastTurn() {
-    // 選択中/修正中の手が消えて番号がずれないよう、先に選択を解除しておく
-    clearTurnSelection();
-    onRemoveLastTurn();
   }
 
   return (
@@ -220,11 +212,6 @@ export function KyokuEditor({
         onClearSelection={clearTurnSelection}
         handSteps={handSteps}
       />
-      {kyoku.turns.length > 0 && (
-        <button type="button" className="kyoku-editor__undo" onClick={handleRemoveLastTurn}>
-          最後の1手を取り消す
-        </button>
-      )}
 
       <div ref={turnEditorRef}>
         <TurnEditor
