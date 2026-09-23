@@ -420,6 +420,10 @@
   border-radius: 2px;
 }
 
+.hand-view__agari {
+  display: inline-flex;
+}
+
 .hand-view__meld .tile-emoji {
   font-size: inherit;
 }

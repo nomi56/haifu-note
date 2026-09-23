@@ -24,7 +24,7 @@ export interface HandStep extends HandDiff {
 }
 
 const HAIPAI_SIZE = 13;
-// 履歴の手牌で、面子と面子の間に空ける隙間(牌1枚の幅を1としたときの幅)。CSSのgap(0.25em)と牌の幅(約0.8em)から求めた値
+// 履歴の手牌で、手牌・和了牌・面子の間に空ける隙間(牌1枚の幅を1としたときの幅)。CSSのgap(0.25em)と牌の幅(約0.8em)から求めた値
 const HISTORY_MELD_GAP_SLOTS = 0.3;
 
 /** 赤5と通常の5を入れ替えた牌(それ以外はnull)。副露に使う牌の代用に使う */
@@ -51,7 +51,8 @@ export class Hand {
   // 門前の牌。追加した順に保持する(配牌表示で元の並び順のindexを返すため)
   private concealed: Tile[];
   private melds: Call[];
-  private agari = false;
+  // 和了した手なら和了牌。表示で手牌と分けて右に置くため、どの牌で和了したかを保持する
+  private agariTile: Tile | null = null;
 
   private constructor(concealed: Tile[], melds: Call[]) {
     this.concealed = concealed;
@@ -70,7 +71,7 @@ export class Hand {
 
   clone(): Hand {
     const hand = new Hand([...this.concealed], this.melds.map((m) => ({ ...m, tiles: [...m.tiles] })));
-    hand.agari = this.agari;
+    hand.agariTile = this.agariTile;
     return hand;
   }
 
@@ -81,6 +82,11 @@ export class Hand {
 
   get meldList(): readonly Call[] {
     return this.melds;
+  }
+
+  /** 和了した手なら和了牌、そうでなければnull */
+  get winningTile(): Tile | null {
+    return this.agariTile;
   }
 
   count(tile: Tile): number {
@@ -165,7 +171,7 @@ export class Hand {
     if (turn.agari) {
       // 和了の手は通常ツモ牌を持たないが、同じ牌がツモとしても記録されていれば二重に加えない
       if (turn.draw !== turn.agari.tile) this.draw(turn.agari.tile);
-      this.agari = true;
+      this.agariTile = turn.agari.tile;
     }
     if (turn.discard) {
       const found = this.discard(turn.discard);
@@ -177,7 +183,7 @@ export class Hand {
   /** 枚数の整合性。門前＋副露(カンも3枚扱い)が13枚(和了後は14枚)、同じ牌は4枚まで、赤5は1枚まで */
   validate(): HandIssue[] {
     const issues: HandIssue[] = [];
-    const expected = this.agari ? HAIPAI_SIZE + 1 : HAIPAI_SIZE;
+    const expected = this.agariTile !== null ? HAIPAI_SIZE + 1 : HAIPAI_SIZE;
     const size = this.concealed.length + this.melds.length * 3;
     // 和了で正しい枚数が変わっても同じずれとして扱えるよう、ずれの大きさで判定する
     if (size !== expected) {
@@ -242,15 +248,30 @@ export class Hand {
 
   /** 牌譜の各行に添える手牌の表示。詰めた小さい牌で、増えた牌の強調・副露・不整合の理由を並べる */
   renderHistory({ added, issues }: Pick<HandStep, 'added' | 'issues'>): ReactNode {
+    // 和了した手では、和了牌を手牌から1枚だけ除き、手牌の右に離して置く
+    const agariTile = this.agariTile;
+    const tiles = [...this.tiles];
+    const handAdded = [...added];
+    if (agariTile !== null) {
+      const t = tiles.indexOf(agariTile);
+      if (t !== -1) tiles.splice(t, 1);
+      const i = handAdded.indexOf(agariTile);
+      if (i !== -1) handAdded.splice(i, 1);
+    }
     // 行の幅いっぱいに収まる大きさにするため、並べる幅が牌何枚ぶんかをCSSに渡す。
-    // 鳴いた牌は回転表示でもレイアウト上の幅は1枚ぶん
+    // 鳴いた牌は回転表示でもレイアウト上の幅は1枚ぶん。和了牌は門前の枚数に含まれるので、手牌との間の分だけ足す
     const slots =
       this.concealed.length +
       this.melds.reduce((sum, m) => sum + m.tiles.length, 0) +
-      this.melds.length * HISTORY_MELD_GAP_SLOTS;
+      (this.melds.length + (agariTile !== null ? 1 : 0)) * HISTORY_MELD_GAP_SLOTS;
     return (
       <div className="hand-view hand-view--history" style={{ '--hand-slots': slots } as CSSProperties}>
-        <span className="hand-view__concealed">{this.renderTiles(this.tiles, added, 'hand-view__tile')}</span>
+        <span className="hand-view__concealed">{this.renderTiles(tiles, handAdded, 'hand-view__tile')}</span>
+        {agariTile !== null && (
+          <span className="hand-view__agari" title="和了牌">
+            {this.renderTiles([agariTile], [agariTile], 'hand-view__tile')}
+          </span>
+        )}
         {this.melds.map((m, i) => (
           <TileMeld key={i} tiles={callDisplayTiles(m)} className="hand-view__meld" />
         ))}
