@@ -106,6 +106,18 @@ function App() {
     setInProgress((prev) => ({ ...prev, turns: [...prev.turns, turn] }));
   }
 
+  function updateTurn(index: number, turn: Turn) {
+    setInProgress((prev) => ({ ...prev, turns: prev.turns.map((t, i) => (i === index ? turn : t)) }));
+  }
+
+  function insertTurn(index: number, turn: Turn) {
+    setInProgress((prev) => ({ ...prev, turns: [...prev.turns.slice(0, index), turn, ...prev.turns.slice(index)] }));
+  }
+
+  function removeTurn(index: number) {
+    setInProgress((prev) => ({ ...prev, turns: prev.turns.filter((_, i) => i !== index) }));
+  }
+
   function removeLastTurn() {
     setInProgress((prev) => ({ ...prev, turns: prev.turns.slice(0, -1) }));
   }
@@ -269,6 +281,8 @@ function App() {
 
           <h2>牌譜</h2>
           <KyokuEditor
+            // 局を切り替えたら、手の選択や修正中の状態を持ち越さないよう作り直す
+            key={inProgress.id}
             kyoku={inProgress}
             isEditingExisting={session.kyokus.some((k) => k.id === inProgress.id)}
             onChangeName={(name) => setInProgress((prev) => ({ ...prev, name }))}
@@ -279,6 +293,9 @@ function App() {
             onAddDoraIndicator={addDoraIndicator}
             onRemoveDoraIndicator={removeDoraIndicator}
             onAddTurn={addTurn}
+            onUpdateTurn={updateTurn}
+            onInsertTurn={insertTurn}
+            onRemoveTurn={removeTurn}
             onRemoveLastTurn={removeLastTurn}
             tileSize={tileSize}
             onChangeTileSize={setTileSize}

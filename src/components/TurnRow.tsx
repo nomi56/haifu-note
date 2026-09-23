@@ -7,13 +7,33 @@ interface TurnRowProps {
   turn: Turn;
   index: number;
   rinshan: boolean;
+  selected?: boolean;
+  /** 設定されている場合のみ行をタップ可能にする(表示専用の用途では未設定) */
+  onSelect?: () => void;
 }
 
-export function TurnRow({ turn, index, rinshan }: TurnRowProps) {
+export function TurnRow({ turn, index, rinshan, selected = false, onSelect }: TurnRowProps) {
   const tsumogiri = isTsumogiri(turn);
+  const className = `turn-row${onSelect ? ' turn-row--selectable' : ''}${selected ? ' turn-row--selected' : ''}`;
 
   return (
-    <div className="turn-row">
+    <div
+      className={className}
+      onClick={onSelect}
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-pressed={onSelect ? selected : undefined}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect();
+              }
+            }
+          : undefined
+      }
+    >
       <span className="turn-row__index">{index + 1}</span>
       {turn.call ? (
         <span

@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { TileMeld } from './TileMeld';
 import { TileSelectField } from './TileSelectField';
-import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles } from '../tiles';
+import { AGARI_SOURCE_LABEL_MAP, CALL_SOURCE_LABEL_MAP, chiCandidates, fillMeldTiles, sortTiles } from '../tiles';
 import type { AgariSource, Call, CallSource, Tile, Turn } from '../types';
 
 interface TurnEditorProps {
-  onAdd: (turn: Turn) => void;
+  onSubmit: (turn: Turn) => void;
+  /** 既存の手を修正する場合、その手の内容を初期値として読み込む */
+  initialTurn?: Turn;
+  /** 修正/挿入中であることを示す見出し。通常の追加時は未設定 */
+  heading?: string;
+  submitLabel?: string;
+  /** 修正/挿入を取りやめる。設定されている場合のみキャンセルボタンを出す */
+  onCancel?: () => void;
 }
 
 type Mode = 'tsumo' | 'chi' | 'pon' | 'kan' | 'ankan' | 'agari';
@@ -61,18 +68,76 @@ const ALLOWS_RIICHI: Record<Mode, boolean> = {
   agari: false,
 };
 
-export function TurnEditor({ onAdd }: TurnEditorProps) {
-  const [mode, setMode] = useState<Mode>('tsumo');
-  const [drawTile, setDrawTile] = useState<Tile | null>(null);
-  const [callSource, setCallSource] = useState<CallSource | 'kakan'>('kamicha');
-  const [callTile, setCallTile] = useState<Tile | null>(null);
-  const [discardTile, setDiscardTile] = useState<Tile | null>(null);
-  const [riichi, setRiichi] = useState(false);
-  const [karagiri, setKaragiri] = useState(false);
+interface EditorState {
+  mode: Mode;
+  drawTile: Tile | null;
+  callSource: CallSource | 'kakan';
+  callTile: Tile | null;
+  discardTile: Tile | null;
+  riichi: boolean;
+  karagiri: boolean;
+  chiMeld: Tile[] | null;
+  agariTile: Tile | null;
+  agariSource: AgariSource;
+}
+
+const EMPTY_STATE: EditorState = {
+  mode: 'tsumo',
+  drawTile: null,
+  callSource: 'kamicha',
+  callTile: null,
+  discardTile: null,
+  riichi: false,
+  karagiri: false,
+  chiMeld: null,
+  agariTile: null,
+  agariSource: 'tsumo',
+};
+
+/** 記録済みの手を入力欄の状態に戻す(handleAdd/buildCallの逆変換)。修正時の初期値に使う */
+function stateFromTurn(turn: Turn): EditorState {
+  const base: EditorState = {
+    ...EMPTY_STATE,
+    drawTile: turn.draw ?? null,
+    discardTile: turn.discard ?? null,
+    riichi: turn.riichi,
+    karagiri: turn.karagiri,
+  };
+  if (turn.agari) {
+    return { ...base, mode: 'agari', agariTile: turn.agari.tile, agariSource: turn.agari.source };
+  }
+  const call = turn.call;
+  if (!call) return { ...base, mode: 'tsumo' };
+  const callTile = call.tiles[0];
+  switch (call.type) {
+    case 'chi': {
+      // 保存時は[鳴いた牌, 残り2枚]の順なので、候補(昇順)のうち同じ構成のものを選び直す
+      const key = sortTiles(call.tiles).join(',');
+      const chiMeld = chiCandidates(callTile).find((c) => sortTiles(c).join(',') === key) ?? null;
+      return { ...base, mode: 'chi', callTile, chiMeld };
+    }
+    case 'ankan':
+      return { ...base, mode: 'ankan', callTile };
+    case 'kakan':
+      return { ...base, mode: 'kan', callSource: 'kakan', callTile };
+    default:
+      return { ...base, mode: call.type, callSource: call.from ?? 'kamicha', callTile };
+  }
+}
+
+export function TurnEditor({ onSubmit, initialTurn, heading, submitLabel = '1手追加', onCancel }: TurnEditorProps) {
+  const [initial] = useState(() => (initialTurn ? stateFromTurn(initialTurn) : EMPTY_STATE));
+  const [mode, setMode] = useState<Mode>(initial.mode);
+  const [drawTile, setDrawTile] = useState<Tile | null>(initial.drawTile);
+  const [callSource, setCallSource] = useState<CallSource | 'kakan'>(initial.callSource);
+  const [callTile, setCallTile] = useState<Tile | null>(initial.callTile);
+  const [discardTile, setDiscardTile] = useState<Tile | null>(initial.discardTile);
+  const [riichi, setRiichi] = useState(initial.riichi);
+  const [karagiri, setKaragiri] = useState(initial.karagiri);
   // チーの形(123/234/345等)。昇順3枚の並びで保持し、鳴いた牌はcallTileと同じ値で含まれる
-  const [chiMeld, setChiMeld] = useState<Tile[] | null>(null);
-  const [agariTile, setAgariTile] = useState<Tile | null>(null);
-  const [agariSource, setAgariSource] = useState<AgariSource>('tsumo');
+  const [chiMeld, setChiMeld] = useState<Tile[] | null>(initial.chiMeld);
+  const [agariTile, setAgariTile] = useState<Tile | null>(initial.agariTile);
+  const [agariSource, setAgariSource] = useState<AgariSource>(initial.agariSource);
 
   const needsDiscard = NEEDS_DISCARD[mode];
   const allowsRiichi = ALLOWS_RIICHI[mode];
@@ -143,16 +208,38 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
       karagiri: karagiriEnabled && karagiri,
       agari: requiresAgariTile && agariTile ? { tile: agariTile, source: agariSource } : undefined,
     };
-    onAdd(turn);
+    onSubmit(turn);
+    // 修正/挿入の確定後は親が入力欄を作り直すため、ここでのリセットは通常の追加時のみ
+    if (initialTurn || onCancel) return;
     reset();
     // 次の手は多くの場合ツモから始まるため、入力後は自動でツモ入力に戻す
     setMode('tsumo');
   }
 
+  const isTargeted = heading !== undefined;
+  const submitButtons = (
+    <div className="turn-editor__submit">
+      {onCancel && (
+        <button type="button" onClick={onCancel}>
+          キャンセル
+        </button>
+      )}
+      <button
+        type="button"
+        className={`turn-editor__add${isTargeted ? ' turn-editor__add--primary' : ''}`}
+        disabled={!canAdd}
+        onClick={handleAdd}
+      >
+        {submitLabel}
+      </button>
+    </div>
+  );
+
   const sourceOptions = CALL_SOURCE_OPTIONS[mode];
 
   return (
-    <div className="turn-editor">
+    <div className={`turn-editor${isTargeted ? ' turn-editor--targeted' : ''}`}>
+      {heading && <div className="turn-editor__heading">{heading}</div>}
       <div className="turn-editor__mode">
         {MODES.map((m) => (
           <button key={m} type="button" className={mode === m ? 'active' : ''} onClick={() => changeMode(m)}>
@@ -282,21 +369,19 @@ export function TurnEditor({ onAdd }: TurnEditorProps) {
                 空切り
               </label>
             </div>
-            <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
-              1手追加
-            </button>
+            {!isTargeted && submitButtons}
           </div>
+          {isTargeted && submitButtons}
         </>
       ) : (
         <div className="turn-editor__footer turn-editor__footer--no-riichi">
           <p className="turn-editor__hint">
             {mode === 'agari' ? 'この局はこの手で終了します' : '続けてリンシャンツモを記録してください'}
           </p>
-          <button type="button" className="turn-editor__add" disabled={!canAdd} onClick={handleAdd}>
-            1手追加
-          </button>
+          {!isTargeted && submitButtons}
         </div>
       )}
+      {!needsDiscard && isTargeted && submitButtons}
     </div>
   );
 }
