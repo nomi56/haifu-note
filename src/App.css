@@ -380,6 +380,83 @@
   color: var(--accent);
 }
 
+.turn-row__issue-badge {
+  font-size: 11px;
+  color: #fff;
+  background: var(--danger);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.turn-row__hand {
+  flex-basis: 100%;
+  /* 手牌の大きさを行の幅から決めるため、行の幅を基準(cqw)にする */
+  container-type: inline-size;
+}
+
+/* 履歴の各行に添える手牌。手牌＋副露(--hand-slots枚ぶん)が行の幅に収まる最大の大きさにする。
+   牌1枚の幅は文字サイズの約0.8倍。上限は行の牌の大きさ(牌の表示サイズ設定) */
+.hand-view--history {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  font-size: min(var(--tile-size, 38px), calc(100cqw / (var(--hand-slots, 14) * 0.82)));
+  line-height: 1;
+}
+
+.hand-view__concealed {
+  display: inline-flex;
+}
+
+.hand-view__tile {
+  display: inline-flex;
+  border-bottom: 2px solid transparent;
+}
+
+.hand-view__tile--added {
+  border-bottom-color: var(--accent);
+  background: var(--accent-bg);
+  border-radius: 2px;
+}
+
+.hand-view__meld .tile-emoji {
+  font-size: inherit;
+}
+
+.hand-view__issues {
+  flex-basis: 100%;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--danger);
+}
+
+.kyoku-editor__view-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kyoku-editor__show-hand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.kyoku-editor__hand-hint {
+  font-size: 12px;
+  color: var(--text);
+  margin: 4px 0;
+}
+
+.turn-editor__warning {
+  font-size: 12px;
+  color: var(--danger);
+  margin: 8px 0 0;
+}
+
 .turn-row__riichi-badge {
   font-size: 11px;
   color: var(--danger);

@@ -3,6 +3,7 @@ import type { Kyoku, KifuSession, TileSize } from './types';
 const SESSION_KEY = 'haifu-note:session';
 const IN_PROGRESS_KEY = 'haifu-note:inProgressKyoku';
 const TILE_SIZE_KEY = 'haifu-note:tileSize';
+const SHOW_HAND_KEY = 'haifu-note:showHand';
 
 const TILE_SIZES: TileSize[] = ['small', 'medium', 'large'];
 
@@ -51,4 +52,13 @@ export function loadTileSize(): TileSize {
 
 export function saveTileSize(size: TileSize): void {
   localStorage.setItem(TILE_SIZE_KEY, size);
+}
+
+/** 牌譜の各行に手牌を表示するか。既定はoff */
+export function loadShowHand(): boolean {
+  return localStorage.getItem(SHOW_HAND_KEY) === 'true';
+}
+
+export function saveShowHand(show: boolean): void {
+  localStorage.setItem(SHOW_HAND_KEY, String(show));
 }
