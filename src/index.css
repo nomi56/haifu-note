@@ -3,10 +3,10 @@
   --text-h: #08060d;
   --bg: #fff;
   --surface: #f7f6f9;
-  --border: #e5e4e7;
+  --border: #c9c7cd;
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
+  --accent-border: rgba(170, 59, 255, 0.7);
   --danger: #d1315a;
   --tile-pin: #0c4a6e;
   --tile-sou: #064e3b;
@@ -29,10 +29,10 @@
     --text-h: #f3f4f6;
     --bg: #16171d;
     --surface: #1d1e26;
-    --border: #2e303a;
+    --border: #464a58;
     --accent: #c084fc;
     --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
+    --accent-border: rgba(192, 132, 252, 0.7);
     --danger: #ff6b8b;
     --tile-pin: #38bdf8;
     --tile-sou: #4ade80;
