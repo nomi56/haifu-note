@@ -186,6 +186,21 @@
   font-weight: 600;
 }
 
+.confirm-dialog__danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  font-weight: 600;
+}
+
+.confirm-dialog__message p {
+  margin: 0 0 8px;
+}
+
+.confirm-dialog__preview {
+  margin: 0 0 8px;
+}
+
 /* River / turn display */
 .river-view {
   display: flex;
@@ -207,6 +222,58 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   flex-wrap: wrap;
+}
+
+.turn-row--selectable {
+  cursor: pointer;
+}
+
+.turn-row--selectable:hover {
+  border-color: var(--accent-border);
+}
+
+.turn-row--selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.turn-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 2px 0 6px 28px;
+}
+
+.turn-row-actions button {
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+.turn-row-actions__delete {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.turn-row-actions__close {
+  margin-left: auto;
+}
+
+.river-view__insert-marker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 2px 0;
+}
+
+.river-view__insert-marker::before,
+.river-view__insert-marker::after {
+  content: '';
+  flex: 1;
+  border-top: 2px dashed var(--accent);
 }
 
 .turn-row__index {
@@ -328,6 +395,35 @@
   padding: 10px;
   margin-top: 10px;
   background: var(--surface);
+}
+
+.turn-editor--targeted {
+  border: 2px solid var(--accent);
+  background: var(--accent-bg);
+}
+
+.turn-editor__heading {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.turn-editor__submit {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* 修正/挿入中はキャンセル＋確定の2ボタンになるため、リーチ等のチェックと別の行に置く */
+.turn-editor--targeted > .turn-editor__submit {
+  margin-top: 10px;
+}
+
+.turn-editor__add--primary:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
 .turn-editor__mode {
