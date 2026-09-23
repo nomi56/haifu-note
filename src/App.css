@@ -86,6 +86,9 @@
      ただしoverflow:hiddenで切り取ると牌の枠線ごと欠けて見えるため、
      はみ出し分は.turn-row/.river-viewの余白で吸収し、クリップはしない */
   height: 1em;
+  /* 親要素の行の高さ(文字サイズの小さいラベル等)を引き継ぐと、枠の中での牌の描画位置が場所ごとに変わり、
+     横向きにしたときのはみ出し方もずれるため、どこでも同じ位置に描かれるよう1に固定する */
+  line-height: 1;
 }
 
 .tile-glyph--p {
@@ -358,6 +361,8 @@
 .turn-row__discard--riichi .tile-emoji {
   display: inline-block;
   transform: rotate(90deg);
+  /* 横向きの鳴き牌(.tile-emoji--rotated)と同じく、はみ出す分の余白を取る */
+  margin: 0 0.04em 0 0.15em;
 }
 
 .tile-meld {
@@ -369,9 +374,10 @@
 .tile-emoji--rotated {
   display: inline-block;
   transform: rotate(90deg);
-  /* 回転してもレイアウト上の幅は縦向きのまま(約0.8em)なので、横向きになった見た目の幅(約1.1em)との差を
-     左右の余白で確保し、隣の牌に重ならないようにする */
-  margin: 0 0.16em;
+  /* 回転してもレイアウト上の幅は縦向きのまま(約0.8em)で、横向きになった見た目(約0.96em)は
+     左に約0.13em・右に約0.03emはみ出す(牌の描画位置が縦方向に偏っているため)。
+     はみ出す分だけ左右の余白を取り、縦向きの牌どうしと同じ間隔で隣の牌と並ぶようにする */
+  margin: 0 0.04em 0 0.15em;
 }
 
 .turn-row__label {

@@ -29,8 +29,8 @@ const HAIPAI_SIZE = 13;
 const HISTORY_MELD_GAP_SLOTS = 0.3;
 // 副露の前に追加で空ける間(margin-left: 0.5em)
 const HISTORY_MELDS_LEAD_SLOTS = 0.6;
-// 横向きの牌の左右の余白(margin: 0 0.16em)
-const ROTATED_TILE_EXTRA_SLOTS = 0.4;
+// 横向きの牌の左右の余白(margin: 0 0.04em 0 0.15em)
+const ROTATED_TILE_EXTRA_SLOTS = 0.25;
 
 /** 赤5と通常の5を入れ替えた牌(それ以外はnull)。副露に使う牌の代用に使う */
 function fiveCounterpart(tile: Tile): Tile | null {
