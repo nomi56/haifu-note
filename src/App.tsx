@@ -10,7 +10,7 @@ import './App.css';
 
 // 局データの読み替え(既存局の読込/新規局への切り替え/保存・読込画面への移動)先。
 // 編集中の内容があればダイアログで確認してから適用する
-type PendingSwitch = { type: 'kyoku'; kyoku: Kyoku } | { type: 'new' } | { type: 'file' };
+type PendingSwitch = { type: 'kyoku'; kyoku: Kyoku } | { type: 'new'; gameInfo: GameInfo } | { type: 'file' };
 
 const TILE_SIZE_PX: Record<TileSize, string> = { small: '22px', medium: '30px', large: '38px' };
 
@@ -164,8 +164,8 @@ function App() {
       setView('file');
       return;
     }
-    // 新規局は、直前まで編集していた局の場の情報(何試合目/場風/局数/本場/座席)を初期値として引き継ぐ
-    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku(inProgress.gameInfo);
+    // 新規局の場の情報は、追加時に選んだ進め方(次の局/連荘)で直前の局から算出済みのものを使う
+    const next = action.type === 'kyoku' ? { ...action.kyoku } : createEmptyKyoku(action.gameInfo);
     setInProgress(next);
     setLoadedKyokuSnapshot(JSON.stringify(next));
   }
@@ -185,8 +185,8 @@ function App() {
     requestSwitch({ type: 'kyoku', kyoku });
   }
 
-  function startNewKyoku() {
-    requestSwitch({ type: 'new' });
+  function startNewKyoku(gameInfo: GameInfo) {
+    requestSwitch({ type: 'new', gameInfo });
   }
 
   function handleSwitchSave() {
@@ -276,6 +276,7 @@ function App() {
             kyokus={session.kyokus}
             editingId={inProgress.id}
             onSelect={loadKyokuForEdit}
+            baseGameInfo={inProgress.gameInfo}
             onAddNew={startNewKyoku}
           />
 

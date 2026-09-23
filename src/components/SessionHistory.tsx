@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { TileGlyph } from './TileGlyph';
-import { formatGameInfo } from '../gameInfo';
-import type { Kyoku } from '../types';
+import { advanceToNextKyoku, formatGameInfo, renchan } from '../gameInfo';
+import type { GameInfo, Kyoku } from '../types';
 
 interface SessionHistoryProps {
   kyokus: Kyoku[];
   editingId: string;
   onSelect: (kyoku: Kyoku) => void;
-  onAddNew: () => void;
+  /** 新しい局の場の情報を計算する基準(現在表示中の局の場の情報) */
+  baseGameInfo: GameInfo;
+  onAddNew: (gameInfo: GameInfo) => void;
 }
 
 function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolean; onSelect: (kyoku: Kyoku) => void }) {
@@ -28,7 +31,19 @@ function HistoryItem({ kyoku, active, onSelect }: { kyoku: Kyoku; active: boolea
   );
 }
 
-export function SessionHistory({ kyokus, editingId, onSelect, onAddNew }: SessionHistoryProps) {
+export function SessionHistory({ kyokus, editingId, onSelect, baseGameInfo, onAddNew }: SessionHistoryProps) {
+  const [choosing, setChoosing] = useState(false);
+  // 親が流れる(次の局)か、親が続投する(連荘)かで場の情報の進め方が異なるため、追加時に選ばせる
+  const options = [
+    { label: '次の局へ', gameInfo: advanceToNextKyoku(baseGameInfo) },
+    { label: '連荘', gameInfo: renchan(baseGameInfo) },
+  ];
+
+  function handleChoose(gameInfo: GameInfo) {
+    setChoosing(false);
+    onAddNew(gameInfo);
+  }
+
   return (
     <div className="session-history">
       {kyokus.length === 0 ? (
@@ -36,9 +51,23 @@ export function SessionHistory({ kyokus, editingId, onSelect, onAddNew }: Sessio
       ) : (
         kyokus.map((k) => <HistoryItem key={k.id} kyoku={k} active={k.id === editingId} onSelect={onSelect} />)
       )}
-      <button type="button" className="session-history__add" onClick={onAddNew}>
-        ＋ 新しい局を追加
-      </button>
+      {choosing ? (
+        <div className="session-history__add-choices">
+          {options.map((o) => (
+            <button key={o.label} type="button" onClick={() => handleChoose(o.gameInfo)}>
+              <span className="session-history__add-choice-label">{o.label}</span>
+              <span className="session-history__add-choice-info">{formatGameInfo(o.gameInfo)}</span>
+            </button>
+          ))}
+          <button type="button" className="session-history__add-cancel" onClick={() => setChoosing(false)}>
+            キャンセル
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="session-history__add" onClick={() => setChoosing(true)}>
+          ＋ 新しい局を追加
+        </button>
+      )}
     </div>
   );
 }

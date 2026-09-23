@@ -47,6 +47,11 @@ export function advanceToNextKyoku(info: GameInfo): GameInfo {
   };
 }
 
+/** 連荘(親が続投)で次の局に進める。場風・局数・座席はそのままで、本場を1つ積む */
+export function renchan(info: GameInfo): GameInfo {
+  return { ...info, honba: info.honba + 1 };
+}
+
 /**
  * advanceToNextKyokuの逆操作。前の局に戻す。局数が1を下回ったら場風を戻して4局にし、本場は0にリセットする。
  * 親が前の人(旧・自分から見て上家)に戻るため、自分の座席は東→南→西→北→東と一つ繰り下がる
